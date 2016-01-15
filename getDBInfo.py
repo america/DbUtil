@@ -6,10 +6,13 @@ try:
 except ImportError:
   import ConfigParser as configparser
 
+iniFile = "db_info.ini"
+sqlFile = "selectUserInfo.sql"
+
 config = configparser.ConfigParser()
 #config.sections()
 
-config.read("db_info.ini")
+config.read(iniFile)
 
 host     = config['info']['host']
 user     = config['info']['user']
@@ -26,17 +29,8 @@ connection = pymysql.connect(host=host,
 
 try:
   with connection.cursor() as cursor:
-  # Read a single record
-    sql = 'SELECT user, ' \
-          'consumer_key, ' \
-          'consumer_secret, ' \
-          'access_token, ' \
-          'access_token_secret ' \
-          'FROM ' \
-          'twitter_users ' \
-          'WHERE ' \
-          'No = 0';
-
+    # Read a single record
+    sql = open(sqlFile).read()
     cursor.execute(sql)
     result = cursor.fetchone()
     print(result)

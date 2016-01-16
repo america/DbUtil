@@ -1,6 +1,7 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pymysql.cursors
+import pymysql
 try:
   import configparser
 except ImportError:
@@ -35,4 +36,5 @@ try:
     result = cursor.fetchone()
     print(result)
 finally:
+  cursor.close()
   connection.close()

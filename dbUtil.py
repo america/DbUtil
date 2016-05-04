@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import pymysql
+import traceback
 try:
   import configparser
 except ImportError:
   import ConfigParser as configparser
 
 def connect():
-
   iniFile = "db_info.ini"
-  sqlFile = "selectUserInfo.sql"
 
   config = configparser.ConfigParser()
   #config.sections()
@@ -29,17 +28,36 @@ def connect():
                                db=db,
                                charset='utf8mb4',
                                cursorclass=pymysql.cursors.DictCursor)
+  return connection
+
+def getTwInfo(connection):
+
+  sqlFile = "selectUserInfo.sql"
 
   try:
     with connection.cursor() as cursor:
       # Read a single record
       sql = open(sqlFile).read()
       cursor.execute(sql)
-      result = cursor.fetchone()
+      twInfo = cursor.fetchone()
       #print(result)
-      return result
+      return twInfo
   except:
-    traceback.format_exc(sys.exc_info()[2])
-  finally:
-    cursor.close()
-    connection.close()
+    traceback.print_exc()
+
+def getRandomMsgs(connection):
+
+  sqlFile = "selectRandomMsg.sql"
+
+  try:
+    with connection.cursor() as cursor:
+
+      sql = open(sqlFile).read()
+      cursor.execute(sql)
+      msgs = cursor.fetchall()
+      return msgs
+  except:
+      traceback.print_exc()
+
+def disConnect(connection):
+  connection.close()

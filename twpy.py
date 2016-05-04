@@ -2,11 +2,12 @@
  # -*- coding: utf-8 -*
 
 import logUtil
-import dBUtil
+import dbUtil
 
 import tweepy
 
-twitterInfo = DBUtil.connect()
+con = dbUtil.connect()
+twitterInfo = dbUtil.getTwInfo(con)
 
 CONSUMER_KEY = twitterInfo["consumer_key"]
 CONSUMER_SECRET = twitterInfo["consumer_secret"]
@@ -20,3 +21,5 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
 
 #APIインスタンスを作成
 api = tweepy.API(auth)
+
+dbUtil.disConnect(con)

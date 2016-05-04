@@ -1,3 +1,4 @@
 *.ini
 *.sql
 *.log
+__pycache__

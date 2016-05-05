@@ -12,7 +12,6 @@ def connect():
   iniFile = "db_info.ini"
 
   config = configparser.ConfigParser()
-  #config.sections()
 
   config.read(iniFile)
 
@@ -40,7 +39,6 @@ def getTwInfo(connection):
       sql = open(sqlFile).read()
       cursor.execute(sql)
       twInfo = cursor.fetchone()
-      #print(result)
       return twInfo
   except:
     traceback.print_exc()

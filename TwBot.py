@@ -6,25 +6,20 @@ import dbUtil
 import random
 import traceback
 
-class TwBot():
+from tweepy.streaming import StreamListener
+from tweepy import Stream
 
-  def __init__(self):
-    self.api = twpy.api
+class TwListener(StreamListener):
+  def on_data(self, daga)
+    if data.startwith("{"):
+      print data
+    return True
 
-  def randomTweet(self):
-    con = dbUtil.connect()
-    randomMsgs = dbUtil.getRandomMsgs(con)
+  def on_error(self, status):
+    print status
 
-    random.shuffle(randomMsgs)
-    msg = randomMsgs[0]
+if __name__ == '__main__'
+  stream = Stream(auth, TwListener())
 
-    #tweet
-    try:
-      self.api.update_status(status=msg['CONTENTS']);
-    except:
-      traceback.print_exc()
-    finally:
-      dbUtil.disConnect(con)
-
-twBot = TwBot()
-twBot.randomTweet()
+  # get TimeLine
+  stream.userstream()

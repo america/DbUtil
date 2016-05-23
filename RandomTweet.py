@@ -41,7 +41,7 @@ class tw_bot():
             msg = msg_json['CONTENTS']
             msg = msg.strip()
 
-            self.logger.debug("msg: " + msg)
+            self.logger.debug("msg: " + str(msg))
 
             try:
                 (result, status) = self.tweet(msg)
@@ -59,9 +59,9 @@ class tw_bot():
                 dt = status.created_at  # ツイートの日時
 
                 self.logger.info("id: " + str(id))
-                self.logger.info("name: " + name)
-                self.logger.info("screen_name: " + screen_name)
-                self.logger.info("text: " + text)
+                self.logger.info("name: " + str(name))
+                self.logger.info("screen_name: " + str(screen_name))
+                self.logger.info("text: " + str(text))
                 self.logger.info("date: " + str(dt))
                 self.logger.info("### Tweet OK ###")
 

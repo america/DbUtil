@@ -45,7 +45,7 @@ class tw_bot():
 
             try:
                 (result, status) = self.tweet(msg)
-            except TweepError:
+            except (TweepError,  UnicodeEncodeError):
                 continue
 
             self.logger.debug("result: " + str(result))

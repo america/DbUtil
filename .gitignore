@@ -2,3 +2,4 @@
 *.sql
 *.log
 __pycache__
+*.sh

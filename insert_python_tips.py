@@ -30,7 +30,7 @@ class insert_python_tips():
         con.commit()
 
         if result:
-            dbUtil.disConnect()
+            dbUtil.disConnect(con)
 
             print("Insert OK")
 

@@ -21,7 +21,8 @@ class tw_bot():
         formatter = Formatter(fmt='%(asctime)s %(levelname)s  %(message)s',
                               datefmt='%Y/%m/%d %p %I:%M:%S',)
 
-        self.handler = FileHandler(__file__ + '.log', 'a+')
+        self.handler = FileHandler(__file__ + '.log', 'a+',
+                                   encoding='utf-8')
         self.handler.setFormatter(formatter)
 
         self.logger.addHandler(self.handler)
@@ -39,13 +40,14 @@ class tw_bot():
             random.shuffle(random_msgs)
             msg_json = random_msgs[0]
             msg = msg_json['CONTENTS']
+            msg_bytes = msg.encode('utf-8')
+            msg = msg_bytes.decode('utf-8')
             msg = msg.strip()
-
-            self.logger.debug("msg: " + str(msg))
 
             try:
                 (result, status) = self.tweet(msg)
             except (TweepError,  UnicodeEncodeError):
+                count += 1
                 continue
 
             self.logger.debug("result: " + str(result))
@@ -59,9 +61,9 @@ class tw_bot():
                 dt = status.created_at  # ツイートの日時
 
                 self.logger.info("id: " + str(id))
-                self.logger.info("name: " + str(name))
-                self.logger.info("screen_name: " + str(screen_name))
-                self.logger.info("text: " + str(text))
+                self.logger.info("name: " + name)
+                self.logger.info("screen_name: " + screen_name)
+                self.logger.info("text: " + text)
                 self.logger.info("date: " + str(dt))
                 self.logger.info("### Tweet OK ###")
 
@@ -71,7 +73,31 @@ class tw_bot():
 
         dbUtil.disConnect(self.con)
 
+    def all_tweet(self):
+
+        all_msgs = dbUtil.getRandomMsgs(self.con)
+
+        for msg_json in all_msgs:
+            no = msg_json['NO']
+            msg = msg_json['CONTENTS']
+            msg_bytes = msg.encode('utf-8')
+            msg = msg_bytes.decode('utf-8')
+            msg = msg.strip()
+
+            self.logger.debug("no: " + str(no))
+            self.logger.debug("msg: " + str(msg))
+
+            try:
+                (result, status) = self.tweet(msg)
+            except (TweepError,  UnicodeEncodeError):
+                continue
+
+        dbUtil.disConnect(self.con)
+
     def tweet(self, msg):
+
+        result = False
+        status = None
 
         try:
             # tweet
@@ -88,3 +114,4 @@ if __name__ == '__main__':
 
     tw_bot = tw_bot()
     tw_bot.random_tweet()
+    # tw_bot.all_tweet()

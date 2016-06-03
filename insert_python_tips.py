@@ -4,12 +4,16 @@
 import sys
 import dbUtil
 import traceback
+from logging import getLogger, StreamHandler, DEBUG
 
 
 class insert_python_tips():
 
-    def __init__(self):
-        pass
+    def __init__(self, logger=None):
+        self.logger = logger if logger else getLogger("log")
+        self.logger.setLevel(DEBUG)
+        handler = StreamHandler()
+        self.logger.addHandler(handler)
 
     def insert(self, data):
 
@@ -29,17 +33,18 @@ class insert_python_tips():
 
         con.commit()
 
-        if result:
-            dbUtil.disConnect(con)
+        dbUtil.disConnect(con)
 
-            print("Insert OK")
+        if result:
+
+            self.logger.info("Insert OK")
 
 
 if __name__ == '__main__':
 
     param = sys.argv
 
-    if len(param) < 2:
+    if len(param) != 2:
         print("This script is required only one argument.")
         sys.exit()
 

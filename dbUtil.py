@@ -3,6 +3,7 @@
 
 import pymysql
 import traceback
+from random import choice
 try:
     import configparser
 except ImportError:
@@ -48,12 +49,27 @@ def getTwInfo(connection):
 
 def getRandomMsgs(connection):
 
-    sqlFile = "selectRandomMsg.sql"
+    weighted_choices = [("select_msg_from_songs.sql", 1), ("select_msg_from_python.sql", 2), ("select_msg_from_funky.sql", 5)]
+
+    population = [val for val, cnt in weighted_choices for i in range(cnt)]
+
+    sql_file = choice(population)
 
     try:
         with connection.cursor() as cursor:
+            sql = open(sql_file).read()
+            cursor.execute(sql)
+            msgs = cursor.fetchall()
+            return msgs
+    except BaseException:
+        traceback.print_exc()
 
-            sql = open(sqlFile).read()
+
+def getAllMsgs(connection, sql_file):
+
+    try:
+        with connection.cursor() as cursor:
+            sql = open(sql_file).read()
             cursor.execute(sql)
             msgs = cursor.fetchall()
             return msgs

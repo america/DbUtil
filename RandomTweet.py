@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+import re
 import traceback
 import twpy
 import dbUtil
@@ -11,21 +13,35 @@ from tweepy import TweepError
 
 class tw_bot():
 
-    MAX_LOOP_CNT = 10
+    MAX_LOOP_CNT = 20
 
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, list_logger=None):
         self.api = twpy.api
+        # logger for log
         self.logger = logger if logger else getLogger(__file__)
         self.logger.setLevel(DEBUG)
 
+        # logger for message list
+        self.list_logger = list_logger if list_logger else getLogger('message_list')
+        self.list_logger.setLevel(DEBUG)
+
+        # format for log
         formatter = Formatter(fmt='%(asctime)s %(levelname)s  %(message)s',
                               datefmt='%Y/%m/%d %p %I:%M:%S',)
 
-        self.handler = FileHandler(__file__ + '.log', 'a+',
-                                   encoding='utf-8')
-        self.handler.setFormatter(formatter)
+        # handler for log
+        self.log_handler = FileHandler(__file__ + '.log', 'a+',
+                                       encoding='utf-8')
+        self.log_handler.setFormatter(formatter)
 
-        self.logger.addHandler(self.handler)
+        # handler for message list
+        self.list_handler = FileHandler(__file__ + '_list.log', 'w',
+                                        encoding='utf-8')
+        # set handler for log
+        self.logger.addHandler(self.log_handler)
+
+        # set handler for message list
+        self.list_logger.addHandler(self.list_handler)
 
         self.con = dbUtil.connect()
 
@@ -73,7 +89,7 @@ class tw_bot():
 
         dbUtil.disConnect(self.con)
 
-    def all_tweet(self):
+    def show_all_msgs(self):
 
         all_msgs = dbUtil.getRandomMsgs(self.con)
 
@@ -84,13 +100,12 @@ class tw_bot():
             msg = msg_bytes.decode('utf-8')
             msg = msg.strip()
 
-            self.logger.debug("no: " + str(no))
-            self.logger.debug("msg: " + str(msg))
-
             try:
-                (result, status) = self.tweet(msg)
-            except (TweepError,  UnicodeEncodeError):
-                continue
+                self.list_logger.info("no: " + str(no))
+                self.list_logger.info("msg: " + str(msg))
+
+            except UnicodeEncodeError:
+                raise
 
         dbUtil.disConnect(self.con)
 
@@ -112,6 +127,24 @@ class tw_bot():
 
 if __name__ == '__main__':
 
+    def usage():
+        m = re.split('/', __file__)
+        script_name = m[-1]
+        print("usage:")
+        print("python", script_name, "1 ... random tweet")
+        print("                      2 ... dump all messeage list to " + script_name + "_list.log")
+        sys.exit()
+
+    param = sys.argv
+
+    if len(param) != 2:
+        usage()
+    if param[1] != '1' and param[1] != '2':
+        usage()
+
     tw_bot = tw_bot()
-    tw_bot.random_tweet()
-    # tw_bot.all_tweet()
+
+    if param[1] == '1':
+        tw_bot.random_tweet()
+    else:
+        tw_bot.show_all_msgs()

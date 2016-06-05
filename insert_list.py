@@ -62,7 +62,8 @@ class insert_list():
                 self.list_logger.info("msg: " + str(msg))
 
         except Exception:
-            traceback.print_exc()
+            raise
+
         dbUtil.disConnect(self.con)
 
 if __name__ == '__main__':

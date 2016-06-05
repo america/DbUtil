@@ -49,7 +49,7 @@ def getTwInfo(connection):
 
 def getRandomMsgs(connection):
 
-    weighted_choices = [("select_msg_from_songs.sql", 1), ("select_msg_from_python.sql", 2), ("select_msg_from_funky.sql", 5)]
+    weighted_choices = [("select_msg_from_songs.sql", 1), ("select_msg_from_python.sql", 2), ("select_msg_from_funky.sql", 3)]
 
     population = [val for val, cnt in weighted_choices for i in range(cnt)]
 

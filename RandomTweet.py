@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-import re
 import traceback
 import twpy
 import dbUtil
@@ -21,10 +19,6 @@ class tw_bot():
         self.logger = logger if logger else getLogger(__file__)
         self.logger.setLevel(DEBUG)
 
-        # logger for message list
-        self.list_logger = list_logger if list_logger else getLogger('message_list')
-        self.list_logger.setLevel(DEBUG)
-
         # format for log
         formatter = Formatter(fmt='%(asctime)s %(levelname)s  %(message)s',
                               datefmt='%Y/%m/%d %p %I:%M:%S',)
@@ -34,14 +28,8 @@ class tw_bot():
                                        encoding='utf-8')
         self.log_handler.setFormatter(formatter)
 
-        # handler for message list
-        self.list_handler = FileHandler(__file__ + '_list.log', 'w',
-                                        encoding='utf-8')
         # set handler for log
         self.logger.addHandler(self.log_handler)
-
-        # set handler for message list
-        self.list_logger.addHandler(self.list_handler)
 
         self.con = dbUtil.connect()
 
@@ -89,26 +77,6 @@ class tw_bot():
 
         dbUtil.disConnect(self.con)
 
-    def show_all_msgs(self):
-
-        all_msgs = dbUtil.getRandomMsgs(self.con)
-
-        for msg_json in all_msgs:
-            no = msg_json['NO']
-            msg = msg_json['CONTENTS']
-            msg_bytes = msg.encode('utf-8')
-            msg = msg_bytes.decode('utf-8')
-            msg = msg.strip()
-
-            try:
-                self.list_logger.info("no: " + str(no))
-                self.list_logger.info("msg: " + str(msg))
-
-            except UnicodeEncodeError:
-                raise
-
-        dbUtil.disConnect(self.con)
-
     def tweet(self, msg):
 
         result = False
@@ -127,24 +95,5 @@ class tw_bot():
 
 if __name__ == '__main__':
 
-    def usage():
-        m = re.split('/', __file__)
-        script_name = m[-1]
-        print("usage:")
-        print("python", script_name, "1 ... random tweet")
-        print("                      2 ... dump all messeage list to " + script_name + "_list.log")
-        sys.exit()
-
-    param = sys.argv
-
-    if len(param) != 2:
-        usage()
-    if param[1] != '1' and param[1] != '2':
-        usage()
-
     tw_bot = tw_bot()
-
-    if param[1] == '1':
-        tw_bot.random_tweet()
-    else:
-        tw_bot.show_all_msgs()
+    tw_bot.random_tweet()

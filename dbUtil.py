@@ -10,6 +10,9 @@ except ImportError:
     import ConfigParser as configparser
 
 
+select_single_msg_sql = "sql/select_single_msg.sql"
+
+
 def connect():
     iniFile = "db_info.ini"
 
@@ -34,7 +37,7 @@ def connect():
 
 def getTwInfo(connection):
 
-    sqlFile = "selectUserInfo.sql"
+    sqlFile = "sql/selectUserInfo.sql"
 
     try:
         with connection.cursor() as cursor:
@@ -49,7 +52,10 @@ def getTwInfo(connection):
 
 def getRandomMsgs(connection):
 
-    weighted_choices = [("select_msg_from_songs.sql", 1), ("select_msg_from_python.sql", 2), ("select_msg_from_funky.sql", 3)]
+    weighted_choices = [("sql/select_msg_from_songs.sql", 3),
+                        ("sql/select_msg_from_python.sql", 2),
+                        ("sql/select_msg_from_funky.sql", 1),
+                        ("sql/select_msg_from_precepts.sql", 2)]
 
     population = [val for val, cnt in weighted_choices for i in range(cnt)]
 
@@ -75,6 +81,21 @@ def getAllMsgs(connection, sql_file):
             return msgs
     except BaseException:
         traceback.print_exc()
+
+
+def get_single_msg(connection, table_name, no):
+
+    try:
+        with connection.cursor() as cursor:
+            statement = open(select_single_msg_sql).read()
+            statement = statement.replace('table_name', table_name)
+            cursor.execute(statement, (no,))
+            msg = cursor.fetchone()
+    except Exception:
+        traceback.print_exc()
+        raise
+
+    return msg
 
 
 def disConnect(connection):

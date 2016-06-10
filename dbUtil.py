@@ -9,20 +9,20 @@ try:
 except ImportError:
     import ConfigParser as configparser
 
-
+DB_INFO_INI = "db_info.ini"
 select_user_info_sql = "sql/selectUserInfo.sql"
 select_single_msg_sql = "sql/select_single_msg.sql"
 select_all_msg_sql = "sql/select_all.sql"
 insert_msg_sql = "sql/insert.sql"
 delete_msg_sql = "sql/delete.sql"
+select_all_tales_sql = "sql/select_all_tables.sql"
 
 
 def connect():
-    iniFile = "db_info.ini"
 
     config = configparser.ConfigParser()
 
-    config.read(iniFile)
+    config.read(DB_INFO_INI)
 
     host = config['info']['host']
     user = config['info']['user']
@@ -48,28 +48,31 @@ def getTwInfo(connection):
             cursor.execute(sql)
             twInfo = cursor.fetchone()
             return twInfo
-    except BaseException:
+    except Exception:
         traceback.print_exc()
 
 
 def getRandomMsgs(connection):
 
-    weighted_choices = [("sql/select_msg_from_songs.sql", 3),
-                        ("sql/select_msg_from_python.sql", 2),
-                        ("sql/select_msg_from_funky.sql", 1),
-                        ("sql/select_msg_from_precepts.sql", 2)]
+    all_tables = [table_name_json['table_name'] for table_name_json in get_all_tables(connection)]
+
+    weighted_choices = [(all_tables[3], 3),
+                        (all_tables[2], 2),
+                        (all_tables[0], 1),
+                        (all_tables[1], 2)]
 
     population = [val for val, cnt in weighted_choices for i in range(cnt)]
 
-    sql_file = choice(population)
+    table_name = choice(population)
 
     try:
         with connection.cursor() as cursor:
-            sql = open(sql_file).read()
+            sql = open(select_all_msg_sql).read()
+            sql = sql.replace('table_name', table_name)
             cursor.execute(sql)
             msgs = cursor.fetchall()
             return msgs
-    except BaseException:
+    except Exception:
         traceback.print_exc()
 
 
@@ -81,9 +84,10 @@ def getAllMsgs(connection, table_name):
             sql = sql.replace('table_name', table_name)
             cursor.execute(sql)
             msgs = cursor.fetchall()
-            return msgs
     except BaseException:
         raise
+
+    return msgs
 
 
 def insert_message(connection, table_name, message):
@@ -111,6 +115,19 @@ def get_single_msg(connection, table_name, no):
         raise
 
     return msg
+
+
+def get_all_tables(connection):
+
+    try:
+        with connection.cursor() as cursor:
+            sql = open(select_all_tales_sql).read()
+            cursor.execute(sql)
+            tables = cursor.fetchall()
+    except BaseException:
+        raise
+
+    return tables
 
 
 def disConnect(connection):

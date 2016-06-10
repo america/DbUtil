@@ -7,6 +7,13 @@ import traceback
 from logging import getLogger, StreamHandler, FileHandler, DEBUG
 import argparse
 
+SEPARATE_LINE = "--------------------"
+NOT_EXIST_MSG = "This no doesn't exist."
+INSERT_MSG = "This message was inserted in "
+DELETE_MSG = "This message was deleteed from "
+CONFIRM_MSG = "Are you sure to delete this message? [y/N]: "
+TABLE_NOT_EXIST_MSG = "Table is called [ table_name ] doesn't exist."
+
 
 class manage_message_list():
 
@@ -31,120 +38,162 @@ class manage_message_list():
         table_name = args.table_name
         message = args.message
 
-        result = False
+        if self.exist_table(table_name):
+            try:
+                result = dbUtil.insert_message(self.con, table_name, message)
+            except (Exception,):
+                raise
 
-        try:
-            result = dbUtil.insert_message(self.con, table_name, message)
-        except (Exception,):
-            raise
+            if result:
 
-        self.con.commit()
+                self.con.commit()
 
-        dbUtil.disConnect(self.con)
+                dbUtil.disConnect(self.con)
 
-        if result:
+                self.logger.info(SEPARATE_LINE)
+                self.logger.info("'" + message + "'")
 
-            self.logger.info("Insert OK")
+                self.logger.info(INSERT_MSG + table_name)
 
     def delete(self, args):
 
         table_name = args.table_name
         no = args.no
 
-        msg = "This no is empty message."
-        result = False
+        if self.exist_table(table_name):
 
-        sqlFile = "sql/delete.sql"
+            msg = NOT_EXIST_MSG
+            sqlFile = "sql/delete.sql"
+            result = False
 
-        msg_json = dbUtil.get_single_msg(self.con, table_name, no)
+            try:
+                msg_json = dbUtil.get_single_msg(self.con, table_name, no)
 
-        if msg_json:
-            msg = msg_json.get('CONTENTS', 'This no is empty message.')
+                if msg_json:
+                    msg = msg_json.get('CONTENTS', NOT_EXIST_MSG)
 
-        try:
-            with self.con.cursor() as cursor:
-                statement = open(sqlFile).read()
-                statement = statement.replace('table_name', table_name)
-                statement = statement.strip()
-                result = cursor.execute(statement, (no,))
-        except (Exception,):
-            raise
+                    with self.con.cursor() as cursor:
+                        statement = open(sqlFile).read()
+                        statement = statement.replace('table_name', table_name)
+                        statement = statement.strip()
+                        result = cursor.execute(statement, (no,))
+            except (Exception,):
+                raise
 
-        if not result:
-            self.logger.info(msg)
-        elif self.yes_no_input(msg):
+            if not result:
+                self.logger.info(SEPARATE_LINE)
+                self.logger.info(msg)
+            elif self.yes_no_input(msg):
 
-            self.con.commit()
+                self.con.commit()
 
-            dbUtil.disConnect(self.con)
+                dbUtil.disConnect(self.con)
 
-            self.logger.info("delete OK")
+                self.logger.info(SEPARATE_LINE)
+                self.logger.info("'" + msg + "'")
+                self.logger.info(DELETE_MSG + table_name)
 
     def show_all_msgs(self, args):
 
         table_name = args.table_name
 
+        if self.exist_table(table_name):
+
+            try:
+                all_msgs = dbUtil.getAllMsgs(self.con, table_name)
+
+                for msg_json in all_msgs:
+                    no = msg_json['NO']
+                    msg = msg_json['CONTENTS']
+
+                    self.list_logger.info("no: " + str(no))
+                    self.list_logger.info("msg: " + str(msg))
+            except Exception:
+                raise
+
+            dbUtil.disConnect(self.con)
+
+    def show_all_tables(self, args):
+
         try:
-            all_msgs = dbUtil.getAllMsgs(self.con, table_name)
+            all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(self.con)]
 
-            for msg_json in all_msgs:
-                no = msg_json['NO']
-                msg = msg_json['CONTENTS']
+            for table_name in all_tables:
+                self.logger.info(table_name)
 
-                self.list_logger.info("no: " + str(no))
-                self.list_logger.info("msg: " + str(msg))
         except Exception:
             raise
 
         dbUtil.disConnect(self.con)
 
+        return all_tables
+
     def yes_no_input(self, msg):
 
         msg = msg if msg else ''
+
         self.logger.info("msg: " + msg)
 
         while True:
-            choice = input('Are you sure to delete this message [y/N]: ').lower()
+            choice = input(CONFIRM_MSG).lower()
 
             if choice in ['y', 'ye', 'yes']:
                 return True
             elif choice in ['n', 'no']:
                 return False
 
+    def exist_table(self, table_name):
+
+        all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(self.con)]
+
+        if table_name not in all_tables:
+            self.logger.info(SEPARATE_LINE)
+            self.logger.error(TABLE_NOT_EXIST_MSG.replace('table_name', table_name))
+            sys.exit(1)
+
+        return True
 
 if __name__ == '__main__':
 
     manager = manage_message_list()
 
-    parser = argparse.ArgumentParser()
-    subparser = parser.add_subparsers(help='sub-command help')
+    def _parse():
+        parser = argparse.ArgumentParser()
+        subparser = parser.add_subparsers(help='sub-command help')
 
-    # create the parser for the insert command
-    parser_insert = subparser.add_parser('insert', help='insert table_name massage')
-    parser_insert.set_defaults(func=manager.insert)
-    parser_insert.add_argument('table_name')
-    parser_insert.add_argument('message')
+        # create the parser for the insert command
+        parser_insert = subparser.add_parser('insert', help='insert table_name massage')
+        parser_insert.set_defaults(func=manager.insert)
+        parser_insert.add_argument('table_name')
+        parser_insert.add_argument('message')
 
-    # create the parser for the show command
-    parser_show = subparser.add_parser('show', help='show table_name ')
-    parser_show.set_defaults(func=manager.show_all_msgs)
-    parser_show.add_argument('table_name')
+        # create the parser for the show command
+        parser_show = subparser.add_parser('show', help='show table_name ')
+        parser_show.set_defaults(func=manager.show_all_msgs)
+        parser_show.add_argument('table_name')
 
-    # create the parser for the delete command
-    parser_delete = subparser.add_parser('delete', help='delete table_name no')
-    parser_delete.set_defaults(func=manager.delete)
-    parser_delete.add_argument('table_name')
-    parser_delete.add_argument('no', type=int)
+        # create the parser for the delete command
+        parser_delete = subparser.add_parser('delete', help='delete table_name no')
+        parser_delete.set_defaults(func=manager.delete)
+        parser_delete.add_argument('table_name')
+        parser_delete.add_argument('no', type=int)
 
-    args = parser.parse_args()
+        # create the parser for the show_tables command
+        parser_show_tables = subparser.add_parser('show_tables', help='show_tables')
+        parser_show_tables.set_defaults(func=manager.show_all_tables)
 
-    has_func = hasattr(args, 'func')
+        args = parser.parse_args()
 
-    if not has_func:
-        parser.parse_args(['-h'])
-        sys.exit(1)
+        has_func = hasattr(args, 'func')
+
+        if not has_func:
+            parser.parse_args(['-h'])
+            sys.exit(1)
+
+        return args
 
     try:
+        args = _parse()
         args.func(args)
     except Exception:
         traceback.print_exc()

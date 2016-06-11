@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 import pymysql
 import traceback
 from random import choice
+from logging import getLogger, StreamHandler, DEBUG
 try:
     import configparser
 except ImportError:
@@ -15,7 +17,14 @@ select_single_msg_sql = "sql/select_single_msg.sql"
 select_all_msg_sql = "sql/select_all.sql"
 insert_msg_sql = "sql/insert.sql"
 delete_msg_sql = "sql/delete.sql"
-select_all_tales_sql = "sql/select_all_tables.sql"
+select_all_tables_sql = "sql/select_all_tables.sql"
+
+TABLE_NOT_EXIST_MSG = "No table exists."
+DB_CONNCTION_RELEASED_MSG = "DB Connection Released."
+
+logger = getLogger("__file__")
+logger.setLevel(DEBUG)
+logger.addHandler(StreamHandler())
 
 
 def connect():
@@ -121,14 +130,20 @@ def get_all_tables(connection):
 
     try:
         with connection.cursor() as cursor:
-            sql = open(select_all_tales_sql).read()
+            sql = open(select_all_tables_sql).read()
             cursor.execute(sql)
             tables = cursor.fetchall()
-    except BaseException:
+    except Exception:
         raise
+
+    if not tables:
+        logger.error(TABLE_NOT_EXIST_MSG)
+        disConnect(connection)
+        sys.exit(1)
 
     return tables
 
 
 def disConnect(connection):
     connection.close()
+    logger.info(DB_CONNCTION_RELEASED_MSG)

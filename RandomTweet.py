@@ -31,7 +31,10 @@ class tw_bot():
         # set handler for log
         self.logger.addHandler(self.log_handler)
 
-        self.con = dbUtil.connect()
+        try:
+            self.con = dbUtil.connect()
+        except Exception:
+            raise
 
     def random_tweet(self):
 
@@ -95,5 +98,8 @@ class tw_bot():
 
 if __name__ == '__main__':
 
-    tw_bot = tw_bot()
-    tw_bot.random_tweet()
+    try:
+        tw_bot = tw_bot()
+        tw_bot.random_tweet()
+    except Exception:
+        traceback.print_exc()

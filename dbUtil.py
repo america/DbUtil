@@ -1,51 +1,64 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import pymysql
-import traceback
 from random import choice
-from logging import getLogger, StreamHandler, DEBUG
+from logging import getLogger, StreamHandler,  DEBUG
 try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
+import constants
 
-DB_INFO_INI = "db_info.ini"
-select_user_info_sql = "sql/selectUserInfo.sql"
-select_single_msg_sql = "sql/select_single_msg.sql"
-select_all_msg_sql = "sql/select_all.sql"
-insert_msg_sql = "sql/insert.sql"
-delete_msg_sql = "sql/delete.sql"
-select_all_tables_sql = "sql/select_all_tables.sql"
 
-TABLE_NOT_EXIST_MSG = "No table exists."
-DB_CONNCTION_RELEASED_MSG = "DB Connection Released."
-
-logger = getLogger("__file__")
+logger = getLogger(__file__)
 logger.setLevel(DEBUG)
-logger.addHandler(StreamHandler())
+handler = StreamHandler()
+logger.addHandler(handler)
+
+
+def logging(func):
+    "Decorator"
+    def inner(*args, **kwargs):
+        logger.info(__name__ + '#' + func.__name__)
+
+        result = func(*args, **kwargs)
+        return result
+    return inner
 
 
 def connect():
 
     config = configparser.ConfigParser()
 
-    config.read(DB_INFO_INI)
+    try:
+        if not os.path.exists(constants.DB_INFO_INI):
+            logger.info(constants.SEPARATE_LINE)
+            logger.error(constants.DB_INFO_INI_NOT_EXIST_MSG)
+            sys.exit(1)
 
-    host = config['info']['host']
-    user = config['info']['user']
-    password = config['info']['password']
-    db = config['info']['db']
+        config.read(constants.DB_INFO_INI)
 
-# Connect to the database
-    connection = pymysql.connect(host=host,
-                                 user=user,
-                                 password=password,
-                                 db=db,
-                                 charset='utf8mb4',
-                                 cursorclass=pymysql.cursors.DictCursor)
-    return connection
+        host = config['info']['host']
+        user = config['info']['user']
+        password = config['info']['password']
+        db = config['info']['db']
+
+        # Connect to the database
+        connection = pymysql.connect(host=host,
+                                     user=user,
+                                     password=password,
+                                     db=db,
+                                     charset='utf8mb4',
+                                     cursorclass=pymysql.cursors.DictCursor)
+
+        logger.debug(constants.SEPARATE_LINE)
+        logger.debug(constants.DB_CONNECTION_ESTABLISHED_MSG)
+        return connection
+    except Exception:
+        raise
 
 
 def getTwInfo(connection):
@@ -53,43 +66,36 @@ def getTwInfo(connection):
     try:
         with connection.cursor() as cursor:
             # Read a single record
-            sql = open(select_user_info_sql).read()
+            sql = open(constants.SELECT_USER_INFO_SQL).read()
             cursor.execute(sql)
             twInfo = cursor.fetchone()
             return twInfo
     except Exception:
-        traceback.print_exc()
+        raise
 
 
 def getRandomMsgs(connection):
 
     all_tables = [table_name_json['table_name'] for table_name_json in get_all_tables(connection)]
 
-    weighted_choices = [(all_tables[3], 3),
-                        (all_tables[2], 2),
-                        (all_tables[0], 1),
-                        (all_tables[1], 2)]
-
-    population = [val for val, cnt in weighted_choices for i in range(cnt)]
-
-    table_name = choice(population)
+    table_name = choice(all_tables)
 
     try:
         with connection.cursor() as cursor:
-            sql = open(select_all_msg_sql).read()
+            sql = open(constants.SELECT_ALL_MSG_SQL).read()
             sql = sql.replace('table_name', table_name)
             cursor.execute(sql)
             msgs = cursor.fetchall()
             return msgs
     except Exception:
-        traceback.print_exc()
+        raise
 
 
 def getAllMsgs(connection, table_name):
 
     try:
         with connection.cursor() as cursor:
-            sql = open(select_all_msg_sql).read()
+            sql = open(constants.SELECT_ALL_MSG_SQL).read()
             sql = sql.replace('table_name', table_name)
             cursor.execute(sql)
             msgs = cursor.fetchall()
@@ -103,11 +109,11 @@ def insert_message(connection, table_name, message):
 
     try:
         with connection.cursor() as cursor:
-            statement = open(insert_msg_sql).read()
+            statement = open(constants.INSERT_MSG_SQL).read()
             statement = statement.replace('table_name', table_name)
             result = cursor.execute(statement, (message,))
             return result
-    except BaseException:
+    except Exception:
         raise
 
 
@@ -115,12 +121,11 @@ def get_single_msg(connection, table_name, no):
 
     try:
         with connection.cursor() as cursor:
-            statement = open(select_single_msg_sql).read()
+            statement = open(constants.SELECT_SINGLE_MSG_SQL).read()
             statement = statement.replace('table_name', table_name)
             cursor.execute(statement, (no,))
             msg = cursor.fetchone()
     except Exception:
-        traceback.print_exc()
         raise
 
     return msg
@@ -130,14 +135,15 @@ def get_all_tables(connection):
 
     try:
         with connection.cursor() as cursor:
-            sql = open(select_all_tables_sql).read()
+            sql = open(constants.SELECT_ALL_TABLES_SQL).read()
             cursor.execute(sql)
             tables = cursor.fetchall()
     except Exception:
         raise
 
     if not tables:
-        logger.error(TABLE_NOT_EXIST_MSG)
+        logger.info(constants.SEPARATE_LINE)
+        logger.error(constants.NO_TABLE_EXIST_MSG)
         disConnect(connection)
         sys.exit(1)
 
@@ -145,5 +151,6 @@ def get_all_tables(connection):
 
 
 def disConnect(connection):
+    logger.debug(constants.SEPARATE_LINE)
     connection.close()
-    logger.info(DB_CONNCTION_RELEASED_MSG)
+    logger.debug(constants.DB_CONNECTION_RELEASED_MSG)

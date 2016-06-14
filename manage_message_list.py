@@ -34,20 +34,19 @@ class manage_message_list():
 
         if self.exist_table(table_name):
             try:
-                result = dbUtil.insert_message(self.con, table_name, message)
+                if dbUtil.insert_message(self.con, table_name, message):
+
+                    self.con.commit()
+
+                    dbUtil.disConnect(self.con)
+
+                    self.logger.info(constants.SEPARATE_LINE)
+                    self.logger.info("'" + message + "'")
+
+                    self.logger.info(constants.INSERT_MSG + table_name)
+
             except (Exception,):
                 raise
-
-            if result:
-
-                self.con.commit()
-
-                dbUtil.disConnect(self.con)
-
-                self.logger.info(constants.SEPARATE_LINE)
-                self.logger.info("'" + message + "'")
-
-                self.logger.info(constants.INSERT_MSG + table_name)
 
     def delete(self, args):
 
@@ -57,7 +56,6 @@ class manage_message_list():
         if self.exist_table(table_name):
 
             msg = constants.NOT_EXIST_MSG
-            sqlFile = "sql/delete.sql"
 
             try:
                 msg_json = dbUtil.get_single_msg(self.con, table_name, no)
@@ -65,18 +63,21 @@ class manage_message_list():
                 if msg_json:
                     msg = msg_json.get('CONTENTS', constants.NOT_EXIST_MSG)
 
-                    with self.con.cursor() as cursor:
-                        statement = open(sqlFile).read()
-                        statement = statement.replace('table_name', table_name)
-                        statement = statement.strip()
-                        cursor.execute(statement, (no,))
+                    if not dbUtil.delete_message(self.con, table_name, no):
+
+                        self.logger.info(constants.SEPARATE_LINE)
+                        self.logger.info("'" + msg + "'")
+
                     if self.yes_no_input(msg):
 
                         self.con.commit()
                         self.logger.info(constants.SEPARATE_LINE)
                         self.logger.info("'" + msg + "'")
                         self.logger.info(constants.DELETE_MSG + table_name)
-            except (Exception,):
+                else:
+                    self.logger.info(constants.SEPARATE_LINE)
+                    self.logger.info("'" + msg + "'")
+            except Exception:
                 raise
             finally:
                 dbUtil.disConnect(self.con)
@@ -142,7 +143,7 @@ class manage_message_list():
         all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(self.con)]
 
         if table_name not in all_tables:
-            self.logger.info(constants.SEPARATE_LINE)
+            self.logger.error(constants.SEPARATE_LINE)
             self.logger.error(constants.TABLE_NOT_EXIST_MSG.replace('table_name', table_name))
             dbUtil.disConnect(self.con)
             sys.exit(1)

@@ -35,7 +35,7 @@ def connect():
 
     try:
         if not os.path.exists(constants.DB_INFO_INI):
-            logger.info(constants.SEPARATE_LINE)
+            logger.error(constants.SEPARATE_LINE)
             logger.error(constants.DB_INFO_INI_NOT_EXIST_MSG)
             sys.exit(1)
 
@@ -111,8 +111,19 @@ def insert_message(connection, table_name, message):
         with connection.cursor() as cursor:
             statement = open(constants.INSERT_MSG_SQL).read()
             statement = statement.replace('table_name', table_name)
-            result = cursor.execute(statement, (message,))
-            return result
+            return cursor.execute(statement, (message,))
+    except Exception:
+        raise
+
+
+def delete_message(connection, table_name, no):
+
+    try:
+        with connection.cursor() as cursor:
+            statement = open(constants.DELETE_MSG_SQL).read()
+            statement = statement.replace('table_name', table_name)
+            statement = statement.strip()
+            return cursor.execute(statement, (no,))
     except Exception:
         raise
 

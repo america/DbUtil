@@ -38,8 +38,6 @@ class manage_message_list():
 
                     self.con.commit()
 
-                    dbUtil.disConnect(self.con)
-
                     self.logger.info(constants.SEPARATE_LINE)
                     self.logger.info("'" + message + "'")
 
@@ -47,6 +45,9 @@ class manage_message_list():
 
             except (Exception,):
                 raise
+
+            finally:
+                dbUtil.disConnect(self.con)
 
     def delete(self, args):
 
@@ -104,8 +105,8 @@ class manage_message_list():
                     self.list_logger.info("msg: " + str(msg))
             except Exception:
                 raise
-
-            dbUtil.disConnect(self.con)
+            finally:
+                dbUtil.disConnect(self.con)
 
     def show_all_tables(self, args):
 
@@ -118,10 +119,8 @@ class manage_message_list():
 
         except Exception:
             raise
-
-        dbUtil.disConnect(self.con)
-
-        return all_tables
+        finally:
+            dbUtil.disConnect(self.con)
 
     def yes_no_input(self, msg):
 

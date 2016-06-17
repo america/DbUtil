@@ -4,9 +4,10 @@
 import traceback
 import twpy
 import dbUtil
-import random
-from logging import getLogger, FileHandler, Formatter, DEBUG
+from random import choice
+from logging import getLogger, StreamHandler, FileHandler, Formatter, DEBUG
 from tweepy import TweepError
+import constants
 
 
 class tw_bot():
@@ -38,41 +39,39 @@ class tw_bot():
 
     def random_tweet(self):
 
-        random_msgs = dbUtil.getRandomMsgs(self.con)
+        (table_name, random_msgs) = dbUtil.getRandomMsgs(self.con)
 
         count = 0
 
         while count < tw_bot.MAX_LOOP_CNT:
 
-            random.shuffle(random_msgs)
-            msg_json = random_msgs[0]
+            msg_json = choice(random_msgs)
+            no = msg_json['NO']
             msg = msg_json['CONTENTS']
             msg_bytes = msg.encode('utf-8')
             msg = msg_bytes.decode('utf-8')
             msg = msg.strip()
 
             try:
-                (result, status) = self.tweet(msg)
+                (result, status) = self.tweet(table_name, no, msg)
             except (TweepError,  UnicodeEncodeError):
                 count += 1
                 continue
 
-            self.logger.debug("result: " + str(result))
-
             if result:
+                if status:
+                    id = status.id  # ID
+                    name = status.author.name  # name
+                    screen_name = status.author.screen_name  # screen_name
+                    text = status.text  # a content you tweet
+                    dt = status.created_at  # date at tweet
 
-                id = status.id  # ツイートのID
-                name = status.author.name  # 名前
-                screen_name = status.author.screen_name  # スクリーンネーム
-                text = status.text
-                dt = status.created_at  # ツイートの日時
-
-                self.logger.info("id: " + str(id))
-                self.logger.info("name: " + name)
-                self.logger.info("screen_name: " + screen_name)
-                self.logger.info("text: " + text)
-                self.logger.info("date: " + str(dt))
-                self.logger.info("### Tweet OK ###")
+                    self.logger.info("id: " + str(id))
+                    self.logger.info("name: " + name)
+                    self.logger.info("screen_name: " + screen_name)
+                    self.logger.info("text: " + text)
+                    self.logger.info("date: " + str(dt))
+                    self.logger.info("### Tweet OK ###")
 
                 break
 
@@ -80,14 +79,22 @@ class tw_bot():
 
         dbUtil.disConnect(self.con)
 
-    def tweet(self, msg):
-
-        result = False
-        status = None
+    def tweet(self, table_name, no, msg):
 
         try:
-            # tweet
-            status = self.api.update_status(status=msg)
+            if constants.TWEET_FLAG:
+                # tweet
+                status = self.api.update_status(status=msg)
+            else:
+                stdlogger = getLogger('std')
+                stdlogger.setLevel(DEBUG)
+                stdlogger.addHandler(StreamHandler())
+
+                stdlogger.info(constants.SEPARATE_LINE)
+                stdlogger.info('table_name: ' + table_name)
+                stdlogger.info('no: ' + str(no))
+                status = stdlogger.info('message: ' + msg)
+
             result = True
         except (TweepError, UnicodeEncodeError):
             self.logger.error(traceback.format_exc())

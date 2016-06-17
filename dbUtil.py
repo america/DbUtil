@@ -86,7 +86,7 @@ def getRandomMsgs(connection):
             sql = sql.replace('table_name', table_name)
             cursor.execute(sql)
             msgs = cursor.fetchall()
-            return msgs
+            return (table_name, msgs)
     except Exception:
         raise
 
@@ -111,7 +111,9 @@ def insert_message(connection, table_name, message):
         with connection.cursor() as cursor:
             statement = open(constants.INSERT_MSG_SQL).read()
             statement = statement.replace('table_name', table_name)
-            return cursor.execute(statement, (message,))
+            cursor.execute(statement, (message,))
+            # get the ID from the last insert
+            return cursor.lastrowid
     except Exception:
         raise
 

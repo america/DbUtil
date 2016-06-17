@@ -11,19 +11,12 @@ import constants
 
 class manage_message_list():
 
-    def __init__(self, logger=None, list_logger=None):
+    def __init__(self, logger=None):
         # logger for log
         self.logger = logger if logger else getLogger("log")
         self.logger.setLevel(DEBUG)
         self.handler = StreamHandler()
         self.logger.addHandler(self.handler)
-
-        # logger for message list
-        self.list_logger = list_logger if list_logger else getLogger('message_list')
-        self.list_logger.setLevel(DEBUG)
-        list_handler = FileHandler(__file__ + '_list.log', 'w',
-                                   encoding='utf-8')
-        self.list_logger.addHandler(list_handler)
 
         self.con = dbUtil.connect()
 
@@ -34,14 +27,14 @@ class manage_message_list():
 
         if self.exist_table(table_name):
             try:
-                if dbUtil.insert_message(self.con, table_name, message):
-
+                no = dbUtil.insert_message(self.con, table_name, message)
+                if no:
                     self.con.commit()
 
                     self.logger.info(constants.SEPARATE_LINE)
                     self.logger.info("'" + message + "'")
 
-                    self.logger.info(constants.INSERT_MSG + table_name)
+                    self.logger.info(constants.INSERT_MSG + table_name + " at No:" + str(no))
 
             except (Exception,):
                 raise
@@ -56,28 +49,25 @@ class manage_message_list():
 
         if self.exist_table(table_name):
 
-            msg = constants.NOT_EXIST_MSG
-
             try:
                 msg_json = dbUtil.get_single_msg(self.con, table_name, no)
 
                 if msg_json:
                     msg = msg_json.get('CONTENTS', constants.NOT_EXIST_MSG)
 
-                    if not dbUtil.delete_message(self.con, table_name, no):
+                    dbUtil.delete_message(self.con, table_name, no)
 
-                        self.logger.info(constants.SEPARATE_LINE)
-                        self.logger.info("'" + msg + "'")
-
-                    if self.yes_no_input(msg):
+                    if self.yes_no_input(table_name, no, msg):
 
                         self.con.commit()
                         self.logger.info(constants.SEPARATE_LINE)
-                        self.logger.info("'" + msg + "'")
+                        self.logger.info("table_name: " + table_name)
+                        self.logger.info("no: " + str(no))
+                        self.logger.info("msg: " + msg)
                         self.logger.info(constants.DELETE_MSG + table_name)
                 else:
                     self.logger.info(constants.SEPARATE_LINE)
-                    self.logger.info("'" + msg + "'")
+                    self.logger.info(constants.NOT_EXIST_MSG)
             except Exception:
                 raise
             finally:
@@ -92,6 +82,12 @@ class manage_message_list():
             try:
                 all_msgs = dbUtil.getAllMsgs(self.con, table_name)
 
+                # logger for message list
+                self.list_logger = getLogger('message_list')
+                self.list_logger.setLevel(DEBUG)
+                list_handler = FileHandler(table_name + '_list.log', 'w',
+                                           encoding='utf-8')
+                self.list_logger.addHandler(list_handler)
                 for msg_json in all_msgs:
                     no = msg_json['NO']
                     msg = msg_json['CONTENTS']
@@ -114,19 +110,32 @@ class manage_message_list():
             all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(self.con)]
 
             self.logger.info(constants.SEPARATE_LINE)
+            cnt = 1
             for table_name in all_tables:
-                self.logger.info(table_name)
+                self.logger.info(str(cnt) + ": " + table_name)
+                cnt += 1
 
         except Exception:
             raise
         finally:
             dbUtil.disConnect(self.con)
 
-    def yes_no_input(self, msg):
+    def search(self, args):
+
+        try:
+            pass
+        except Exception:
+            raise
+        finally:
+            dbUtil.disConnect(self.con)
+
+    def yes_no_input(self, table_name, no, msg):
 
         msg = msg if msg else ''
 
         self.logger.info(constants.SEPARATE_LINE)
+        self.logger.info("table_name: " + table_name)
+        self.logger.info("no: " + str(no))
         self.logger.info("msg: " + msg)
 
         while True:
@@ -175,6 +184,10 @@ if __name__ == '__main__':
         # create the parser for the show_tables command
         parser_show_tables = subparser.add_parser('show_tables', help='show_tables')
         parser_show_tables.set_defaults(func=manager.show_all_tables)
+
+        # create the parser for the search command
+        parser_search = subparser.add_parser('search', help='search keyword')
+        parser_search.set_defaults(func=manager.search)
 
         args = parser.parse_args()
 

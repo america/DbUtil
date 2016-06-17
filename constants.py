@@ -1,13 +1,15 @@
 #!/usr/bin/env/python
 # -*- coding: utf-8 -*-
 
+TWEET_FLAG = False
+
 # file name
 DB_INFO_INI = "db_info.ini"
 SELECT_USER_INFO_SQL = "sql/selectUserInfo.sql"
 SELECT_SINGLE_MSG_SQL = "sql/select_single_msg.sql"
-SELECT_ALL_MSG_SQL = "sql/select_all.sql"
-INSERT_MSG_SQL = "sql/insert.sql"
-DELETE_MSG_SQL = "sql/delete.sql"
+SELECT_ALL_MSG_SQL = "sql/select_all_msg.sql"
+INSERT_MSG_SQL = "sql/insert_msg.sql"
+DELETE_MSG_SQL = "sql/delete_msg.sql"
 SELECT_ALL_TABLES_SQL = "sql/select_all_tables.sql"
 # SELECT_ALL_TABLES_SQL = "sql/select_all_tables_test.sql"
 

@@ -12,8 +12,6 @@ import constants
 
 class tw_bot():
 
-    MAX_LOOP_CNT = 20
-
     def __init__(self, logger=None, list_logger=None):
         self.api = twpy.api
         # logger for log
@@ -43,7 +41,7 @@ class tw_bot():
 
         count = 0
 
-        while count < tw_bot.MAX_LOOP_CNT:
+        while count < constants.TWEET_MAX_LOOP_CNT:
 
             msg_json = choice(random_msgs)
             no = msg_json['NO']

@@ -11,6 +11,7 @@ try:
 except ImportError:
     import ConfigParser as configparser
 import constants
+from collections import namedtuple
 
 
 logger = getLogger(__file__)
@@ -144,6 +145,29 @@ def get_single_msg(connection, table_name, no):
     return msg
 
 
+def search_msg_by_kword(connection, keyword):
+
+    all_tables = [table_name_json['table_name'] for table_name_json in get_all_tables(connection)]
+
+    msg_list = []
+
+    try:
+        for table_name in all_tables:
+            with connection.cursor() as cursor:
+                sql = open(constants.SELECT_MSG_BY_KEWORD_SQL).read()
+                statement = sql.replace('table_name', table_name)
+                cursor.execute(statement, ('%' + keyword + '%',))
+                results = cursor.fetchall()
+                Result_tuple = namedtuple('Result_tuple', 'result_json table_name')
+                result_tuple = Result_tuple(results, table_name)
+                msg_list.append(result_tuple)
+
+    except Exception:
+        raise
+
+    return msg_list
+
+
 def get_all_tables(connection):
 
     try:
@@ -164,6 +188,7 @@ def get_all_tables(connection):
 
 
 def disConnect(connection):
-    logger.debug(constants.SEPARATE_LINE)
-    connection.close()
-    logger.debug(constants.DB_CONNECTION_RELEASED_MSG)
+    if connection.open:
+        logger.debug(constants.SEPARATE_LINE)
+        connection.close()
+        logger.debug(constants.DB_CONNECTION_RELEASED_MSG)

@@ -1,6 +1,10 @@
 #!/usr/bin/env/python
 # -*- coding: utf-8 -*-
 
+# try to tweet max frequency
+TWEET_MAX_LOOP_CNT = 20
+
+# the flag of tweet or stdout
 TWEET_FLAG = False
 
 # file name
@@ -11,6 +15,7 @@ SELECT_ALL_MSG_SQL = "sql/select_all_msg.sql"
 INSERT_MSG_SQL = "sql/insert_msg.sql"
 DELETE_MSG_SQL = "sql/delete_msg.sql"
 SELECT_ALL_TABLES_SQL = "sql/select_all_tables.sql"
+SELECT_MSG_BY_KEWORD_SQL = "sql/select_msg_by_keyword.sql"
 # SELECT_ALL_TABLES_SQL = "sql/select_all_tables_test.sql"
 
 # message

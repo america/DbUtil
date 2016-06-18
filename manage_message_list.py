@@ -45,33 +45,32 @@ class manage_message_list():
     def delete(self, args):
 
         table_name = args.table_name
-        no = args.no
+        no_list = args.no
 
         if self.exist_table(table_name):
 
-            try:
-                msg_json = dbUtil.get_single_msg(self.con, table_name, no)
+            for no in no_list:
+                try:
+                    msg_json = dbUtil.get_single_msg(self.con, table_name, no)
 
-                if msg_json:
-                    msg = msg_json.get('CONTENTS', constants.NOT_EXIST_MSG)
+                    if msg_json:
+                        msg = msg_json.get('CONTENTS', constants.NOT_EXIST_MSG)
 
-                    dbUtil.delete_message(self.con, table_name, no)
+                        dbUtil.delete_message(self.con, table_name, no)
 
-                    if self.yes_no_input(table_name, no, msg):
+                        if self.yes_no_input(table_name, no, msg):
 
-                        self.con.commit()
+                            self.con.commit()
+                            self.logger.info(constants.SEPARATE_LINE)
+                            self.logger.info("table_name: " + table_name)
+                            self.logger.info("no: " + str(no))
+                            self.logger.info("msg: " + msg)
+                            self.logger.info(constants.DELETE_MSG + table_name)
+                    else:
                         self.logger.info(constants.SEPARATE_LINE)
-                        self.logger.info("table_name: " + table_name)
-                        self.logger.info("no: " + str(no))
-                        self.logger.info("msg: " + msg)
-                        self.logger.info(constants.DELETE_MSG + table_name)
-                else:
-                    self.logger.info(constants.SEPARATE_LINE)
-                    self.logger.info(constants.NOT_EXIST_MSG)
-            except Exception:
-                raise
-            finally:
-                dbUtil.disConnect(self.con)
+                        self.logger.info(constants.NOT_EXIST_MSG)
+                except Exception:
+                    raise
 
     def show_all_msgs(self, args):
 
@@ -83,11 +82,8 @@ class manage_message_list():
                 all_msgs = dbUtil.getAllMsgs(self.con, table_name)
 
                 # logger for message list
-                self.list_logger = getLogger('message_list')
-                self.list_logger.setLevel(DEBUG)
-                list_handler = FileHandler(table_name + '_list.log', 'w',
-                                           encoding='utf-8')
-                self.list_logger.addHandler(list_handler)
+                self.list_logger = self.make_filehandler_logger(table_name, 'message_list')
+
                 for msg_json in all_msgs:
                     no = msg_json['NO']
                     msg = msg_json['CONTENTS']
@@ -122,8 +118,24 @@ class manage_message_list():
 
     def search(self, args):
 
+        keyword = args.keyword
+
         try:
-            pass
+            result_list = dbUtil.search_msg_by_kword(self.con, keyword)
+
+            # logger for keyword list
+            self.list_logger = self.make_filehandler_logger(keyword, 'keyword_list')
+
+            for result_tuple in result_list:
+                for json in result_tuple.result_json:
+                    self.logger.info(constants.SEPARATE_LINE)
+                    self.list_logger.info(constants.SEPARATE_LINE)
+                    self.logger.info("table_name: " + result_tuple.table_name)
+                    self.list_logger.info("table_name: " + result_tuple.table_name)
+                    self.logger.info("no: " + str(json['NO']))
+                    self.list_logger.info("no: " + str(json['NO']))
+                    self.logger.info("message " + json['CONTENTS'])
+                    self.list_logger.info("message " + json['CONTENTS'])
         except Exception:
             raise
         finally:
@@ -158,6 +170,16 @@ class manage_message_list():
 
         return True
 
+    def make_filehandler_logger(self, handler_prefix, logger_name):
+
+        list_logger = getLogger('keyword_list')
+        list_logger.setLevel(DEBUG)
+        list_handler = FileHandler(handler_prefix + '_list.log', 'w',
+                                   encoding='utf-8')
+        list_logger.addHandler(list_handler)
+
+        return list_logger
+
 if __name__ == '__main__':
 
     def _parse():
@@ -179,7 +201,7 @@ if __name__ == '__main__':
         parser_delete = subparser.add_parser('delete', help='delete table_name no')
         parser_delete.set_defaults(func=manager.delete)
         parser_delete.add_argument('table_name')
-        parser_delete.add_argument('no', type=int)
+        parser_delete.add_argument('no', type=int, nargs='*')
 
         # create the parser for the show_tables command
         parser_show_tables = subparser.add_parser('show_tables', help='show_tables')
@@ -188,13 +210,13 @@ if __name__ == '__main__':
         # create the parser for the search command
         parser_search = subparser.add_parser('search', help='search keyword')
         parser_search.set_defaults(func=manager.search)
+        parser_search.add_argument('keyword')
 
         args = parser.parse_args()
 
         has_func = hasattr(args, 'func')
 
         if not has_func:
-            dbUtil.disConnect(manager.con)
             parser.parse_args(['-h'])
             sys.exit(1)
 
@@ -206,3 +228,5 @@ if __name__ == '__main__':
         args.func(args)
     except Exception:
         traceback.print_exc()
+    finally:
+        dbUtil.disConnect(manager.con)

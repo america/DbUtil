@@ -3,7 +3,7 @@
 
 import traceback
 import twpy
-import dbUtil
+from dbUtil import dbUtil
 from random import choice
 from logging import getLogger, StreamHandler, FileHandler, Formatter, DEBUG
 from tweepy import TweepError

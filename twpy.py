@@ -1,30 +1,39 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import dbUtil
+from dbUtil import dbUtil
 import tweepy
+from dbUtil import logging
 
 
-def main():
-    con = dbUtil.connect()
+class twpy:
 
-    twitterInfo = dbUtil.getTwInfo(con)
+    def __init___(self):
+        pass
 
-    CONSUMER_KEY = twitterInfo["consumer_key"]
-    CONSUMER_SECRET = twitterInfo["consumer_secret"]
+    @logging
+    def main(self):
+        self.con = dbUtil.connect()
 
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+        twitterInfo = dbUtil.getTwInfo(self.con)
 
-    ACCESS_TOKEN = twitterInfo["access_token"]
-    ACCESS_SECRET = twitterInfo["access_token_secret"]
+        CONSUMER_KEY = twitterInfo["consumer_key"]
+        CONSUMER_SECRET = twitterInfo["consumer_secret"]
 
-    auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
+        auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 
-    # APIインスタンスを作成
-    api = tweepy.API(auth)
+        ACCESS_TOKEN = twitterInfo["access_token"]
+        ACCESS_SECRET = twitterInfo["access_token_secret"]
 
-    dbUtil.disConnect(con)
+        auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
 
-    return api
+        # APIインスタンスを作成
+        api = tweepy.API(auth)
 
-api = main()
+        dbUtil.disConnect(self.con)
+
+        return api
+
+twpy = twpy()
+
+api = twpy.main()

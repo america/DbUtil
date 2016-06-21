@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import dbUtil
+from dbUtil import dbUtil
 import traceback
-from logging import getLogger, StreamHandler, FileHandler, DEBUG
+from logging import getLogger, StreamHandler, Formatter, FileHandler, DEBUG
 import argparse
 import constants
 
@@ -16,6 +16,8 @@ class manage_message_list():
         self.logger = logger if logger else getLogger("log")
         self.logger.setLevel(DEBUG)
         self.handler = StreamHandler()
+        self.handler.setFormatter(Formatter(fmt='%(asctime)s %(levelname)s %(message)s',
+                                  datefmt='%Y-%m-%d %I:%M:%S',))
         self.logger.addHandler(self.handler)
 
         self.con = dbUtil.connect()

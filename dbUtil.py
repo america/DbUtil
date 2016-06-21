@@ -195,6 +195,7 @@ class dbUtil:
         return tables
 
     @classmethod
+    @logging
     def disConnect(cls, connection):
         if connection.open:
             logger.debug(constants.SEPARATE_LINE)

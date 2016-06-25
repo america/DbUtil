@@ -8,10 +8,12 @@ from random import choice
 from logging import getLogger, StreamHandler, FileHandler, Formatter, DEBUG
 from tweepy import TweepError
 import constants
+from deco import logging
 
 
 class tw_bot():
 
+    @logging
     def __init__(self, logger=None, list_logger=None):
         self.api = twpy.api
         # logger for log
@@ -35,6 +37,7 @@ class tw_bot():
         except Exception:
             raise
 
+    @logging
     def random_tweet(self):
 
         (table_name, random_msgs) = dbUtil.getRandomMsgs(self.con)
@@ -77,6 +80,7 @@ class tw_bot():
 
         dbUtil.disConnect(self.con)
 
+    @logging
     def tweet(self, table_name, no, msg):
 
         try:

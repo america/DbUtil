@@ -12,26 +12,14 @@ except ImportError:
     import ConfigParser as configparser
 import constants
 from collections import namedtuple
-
+from deco import logging
 
 logger = getLogger(__file__)
 logger.setLevel(DEBUG)
 handler = StreamHandler()
+handler.setFormatter(Formatter(fmt='%(asctime)s %(levelname)s %(message)s',
+                               datefmt='%Y-%m-%d %I:%M:%S',))
 logger.addHandler(handler)
-
-
-def logging(func):
-    "Decorator"
-    def wrapper(obj, *args, **kwargs):
-        handler.setFormatter(Formatter(fmt='%(asctime)s %(levelname)s %(message)s',
-                                       datefmt='%Y-%m-%d %I:%M:%S',))
-        logger.debug(func.__qualname__ + " START")
-
-        result = func(obj, *args, **kwargs)
-
-        logger.debug(func.__qualname__ + " END")
-        return result
-    return wrapper
 
 
 class dbUtil:
@@ -65,11 +53,13 @@ class dbUtil:
 
             logger.debug(constants.SEPARATE_LINE)
             logger.debug(constants.DB_CONNECTION_ESTABLISHED_MSG)
+            logger.debug(constants.SEPARATE_LINE)
             return connection
         except Exception:
             raise
 
     @classmethod
+    @logging
     def getTwInfo(cls, connection):
 
         try:
@@ -83,6 +73,7 @@ class dbUtil:
             raise
 
     @classmethod
+    @logging
     def getRandomMsgs(cls, connection):
 
         all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(connection)]
@@ -100,6 +91,7 @@ class dbUtil:
             raise
 
     @classmethod
+    @logging
     def getAllMsgs(cls, connection, table_name):
 
         try:
@@ -114,6 +106,7 @@ class dbUtil:
         return msgs
 
     @classmethod
+    @logging
     def insert_message(cls, connection, table_name, message):
 
         try:
@@ -127,6 +120,7 @@ class dbUtil:
             raise
 
     @classmethod
+    @logging
     def delete_message(cls, connection, table_name, no):
 
         try:
@@ -139,6 +133,7 @@ class dbUtil:
             raise
 
     @classmethod
+    @logging
     def get_single_msg(cls, connection, table_name, no):
 
         try:
@@ -153,6 +148,7 @@ class dbUtil:
         return msg
 
     @classmethod
+    @logging
     def search_msg_by_kword(cls, connection, keyword):
 
         all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(connection)]
@@ -176,6 +172,21 @@ class dbUtil:
         return msg_list
 
     @classmethod
+    @logging
+    def create_table(cls, connection, table_name):
+
+        try:
+            with connection.cursor() as cursor:
+                ddl = open(constants.CREATE_TABLE_DDL).read()
+                ddl = ddl.replace('table_name', table_name)
+                result = cursor.execute(ddl)
+        except Exception:
+            raise
+
+        return result
+
+    @classmethod
+    @logging
     def get_all_tables(cls, connection):
 
         try:
@@ -201,3 +212,4 @@ class dbUtil:
             logger.debug(constants.SEPARATE_LINE)
             connection.close()
             logger.debug(constants.DB_CONNECTION_RELEASED_MSG)
+            logger.debug(constants.SEPARATE_LINE)

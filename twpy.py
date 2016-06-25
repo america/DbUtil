@@ -3,11 +3,12 @@
 
 from dbUtil import dbUtil
 import tweepy
-from dbUtil import logging
+from deco import logging
 
 
 class twpy:
 
+    @logging
     def __init___(self):
         pass
 

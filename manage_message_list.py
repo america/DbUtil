@@ -162,17 +162,36 @@ class manage_message_list():
             raise
 
     @logging
-    def yes_no_input(self, table_name, no, msg):
+    def delete_table(self, args):
 
-        msg = msg if msg else ''
+        table_name = args.tablename
+
+        if self.exist_table(table_name):
+            try:
+                if self.yes_no_input(table_name):
+                    if dbUtil.delete_table(self.con, table_name):
+                        self.logger.info(constants.SEPARATE_LINE)
+                        self.logger.info(constants.TABLE_DELETED_MSG.replace('table_name', table_name))
+                        self.logger.info(constants.SEPARATE_LINE)
+            except Exception:
+                raise
+
+    @logging
+    def yes_no_input(self, table_name, no=None, msg=None):
+
+        # msg = msg if msg else ''
 
         self.logger.info(constants.SEPARATE_LINE)
         self.logger.info("table_name: " + table_name)
-        self.logger.info("no: " + str(no))
-        self.logger.info("msg: " + msg)
+        if no and msg:
+            self.logger.info("no: " + str(no))
+            self.logger.info("msg: " + msg)
 
         while True:
-            choice = input(constants.CONFIRM_MSG).lower()
+            if no and msg:
+                choice = input(constants.CONFIRM_DELETE_MSG_MSG).lower()
+            else:
+                choice = input(constants.CONFIRM_DELETE_TABLE_MSG).lower()
 
             if choice in ['y', 'ye', 'yes']:
                 return True
@@ -240,6 +259,10 @@ if __name__ == '__main__':
         parser_create_table.set_defaults(func=manager.create_table)
         parser_create_table.add_argument('tablename')
 
+        # create the parser for the delete_table command
+        parser_create_table = subparser.add_parser('delete_table', help='delete_table tablename')
+        parser_create_table.set_defaults(func=manager.delete_table)
+        parser_create_table.add_argument('tablename')
         args = parser.parse_args()
 
         has_func = hasattr(args, 'func')

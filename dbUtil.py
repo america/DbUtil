@@ -34,29 +34,29 @@ class dbUtil:
             if not os.path.exists(constants.DB_INFO_INI):
                 logger.error(constants.SEPARATE_LINE)
                 logger.error(constants.DB_INFO_INI_NOT_EXIST_MSG)
-                sys.exit(1)
+            else:
+                config.read(constants.DB_INFO_INI)
 
-            config.read(constants.DB_INFO_INI)
+                host = config['info']['host']
+                user = config['info']['user']
+                password = config['info']['password']
+                db = config['info']['db']
 
-            host = config['info']['host']
-            user = config['info']['user']
-            password = config['info']['password']
-            db = config['info']['db']
+                # Connect to the database
+                connection = pymysql.connect(host=host,
+                                             user=user,
+                                             password=password,
+                                             db=db,
+                                             charset='utf8mb4',
+                                             cursorclass=pymysql.cursors.DictCursor)
 
-            # Connect to the database
-            connection = pymysql.connect(host=host,
-                                         user=user,
-                                         password=password,
-                                         db=db,
-                                         charset='utf8mb4',
-                                         cursorclass=pymysql.cursors.DictCursor)
-
-            logger.debug(constants.SEPARATE_LINE)
-            logger.debug(constants.DB_CONNECTION_ESTABLISHED_MSG)
-            logger.debug(constants.SEPARATE_LINE)
-            return connection
+                logger.debug(constants.SEPARATE_LINE)
+                logger.debug(constants.DB_CONNECTION_ESTABLISHED_MSG)
+                logger.debug(constants.SEPARATE_LINE)
         except Exception:
             raise
+        else:
+            return connection
 
     @classmethod
     @logging
@@ -68,9 +68,11 @@ class dbUtil:
                 sql = open(constants.SELECT_USER_INFO_SQL).read()
                 cursor.execute(sql)
                 twInfo = cursor.fetchone()
-                return twInfo
         except Exception:
             raise
+
+        else:
+            return twInfo
 
     @classmethod
     @logging
@@ -177,13 +179,37 @@ class dbUtil:
 
         try:
             with connection.cursor() as cursor:
-                ddl = open(constants.CREATE_TABLE_DDL).read()
+                fin = open(constants.CREATE_TABLE_DDL)
+                ddl = fin.read()
                 ddl = ddl.replace('table_name', table_name)
-                result = cursor.execute(ddl)
+                cursor.execute(ddl)
         except Exception:
             raise
 
-        return result
+        else:
+            return True
+
+        finally:
+            fin.close()
+
+    @classmethod
+    @logging
+    def delete_table(cls, connection, table_name):
+
+        try:
+            with connection.cursor() as cursor:
+                fin = open(constants.DROP_TABLE_DDL)
+                ddl = fin.read()
+                ddl = ddl.replace('table_name', table_name)
+                cursor.execute(ddl)
+        except Exception:
+            raise
+
+        else:
+            return True
+
+        finally:
+            fin.close()
 
     @classmethod
     @logging
@@ -208,8 +234,13 @@ class dbUtil:
     @classmethod
     @logging
     def disConnect(cls, connection):
-        if connection.open:
-            logger.debug(constants.SEPARATE_LINE)
-            connection.close()
-            logger.debug(constants.DB_CONNECTION_RELEASED_MSG)
-            logger.debug(constants.SEPARATE_LINE)
+        try:
+            if connection.open:
+                logger.debug(constants.SEPARATE_LINE)
+                connection.close()
+                logger.debug(constants.DB_CONNECTION_RELEASED_MSG)
+                logger.debug(constants.SEPARATE_LINE)
+        except Exception:
+            raise
+        else:
+            return True

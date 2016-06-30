@@ -21,7 +21,6 @@ class test_dbUtil(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # cls.conn = dbUtil.connect()
         pass
 
     def setUp(self):
@@ -34,20 +33,18 @@ class test_dbUtil(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # dbUtil.disConnect(cls.conn)
         pass
 
     def test_connect(self):
         expected = pymysql.connections.Connection
-        self.assertIsInstance(self.conn, expected)
+        _conn = dbUtil.connect()
+        self.assertIsInstance(_conn, expected)
+        dbUtil.disConnect(_conn)
 
     def test_create_table(self):
         expected = True
-
         actual = dbUtil.create_table(self.conn, 'case_table')
-
         self.assertEqual(actual, expected)
-
         dbUtil.delete_table(self.conn, 'case_table')
 
     def test_insert_message(self):
@@ -70,26 +67,24 @@ class test_dbUtil(unittest.TestCase):
     def test_delete_message(self):
         expected = True
         dbUtil.insert_message(self.conn, 'test_table', 'test_message')
-
         actual = dbUtil.delete_message(self.conn, 'test_table', 1)
+        self.assertEqual(actual, expected)
 
-        # actual = dbUtil.delete_message(self.conn, 'test_table', 2)
+    def test_delete_message_err(self):
+        expected = False
+        actual = dbUtil.delete_message(self.conn, 'test_table', 2)
         self.assertEqual(actual, expected)
 
     def test_delete_table(self):
         expected = True
-
         dbUtil.create_table(self.conn, 'test_table_for_delete_table')
         actual = dbUtil.delete_table(self.conn, 'test_table_for_delete_table')
-
         self.assertEqual(actual, expected)
 
     def test_disConnect(self):
         expected = True
-        _connection = dbUtil.connect()
-
-        actual = dbUtil.disConnect(_connection)
-
+        _conn = dbUtil.connect()
+        actual = dbUtil.disConnect(_conn)
         self.assertEqual(actual, expected)
 
 if __name__ == '__main__':

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+from os import path
+from os.path import sep
 import sys
 import pymysql
 from random import choice
@@ -30,12 +31,12 @@ class dbUtil:
 
         config = configparser.ConfigParser()
 
+        db_info_ini_file = path.dirname(path.abspath(__file__)) + sep + constants.DB_INFO_INI
         try:
-            if not os.path.exists(constants.DB_INFO_INI):
-                logger.error(constants.SEPARATE_LINE)
-                logger.error(constants.DB_INFO_INI_NOT_EXIST_MSG)
+            if not path.exists(db_info_ini_file):
+                raise IOError(path.abspath(__file__) + sep + constants.DB_INFO_INI_NOT_EXIST_MSG)
             else:
-                config.read(constants.DB_INFO_INI)
+                config.read(db_info_ini_file)
 
                 host = config['info']['host']
                 user = config['info']['user']
@@ -49,6 +50,8 @@ class dbUtil:
                                              db=db,
                                              charset='utf8mb4',
                                              cursorclass=pymysql.cursors.DictCursor)
+
+                connection.autocommit(False)
 
                 logger.debug(constants.SEPARATE_LINE)
                 logger.debug(constants.DB_CONNECTION_ESTABLISHED_MSG)
@@ -98,41 +101,69 @@ class dbUtil:
 
         try:
             with connection.cursor() as cursor:
-                sql = open(constants.SELECT_ALL_MSG_SQL).read()
+                sql_file = path.dirname(path.abspath(__file__)) + sep + constants.SELECT_ALL_MSG_SQL
+                fin = open(sql_file)
+                sql = fin.read()
                 sql = sql.replace('table_name', table_name)
                 cursor.execute(sql)
                 msgs = cursor.fetchall()
         except BaseException:
             raise
-
-        return msgs
+        else:
+            return msgs
+        finally:
+            if fin and not fin.closed:
+                fin.close()
 
     @classmethod
     @logging
     def insert_message(cls, connection, table_name, message):
 
+        fin = None
+
         try:
             with connection.cursor() as cursor:
-                statement = open(constants.INSERT_MSG_SQL).read()
+                sql_file = path.dirname(path.abspath(__file__)) + sep + constants.INSERT_MSG_SQL
+                fin = open(sql_file)
+                statement = fin.read()
                 statement = statement.replace('table_name', table_name)
                 cursor.execute(statement, (message,))
-                # get the ID from the last insert
-                return cursor.lastrowid
+                connection.commit()
         except Exception:
             raise
+        else:
+            # get the ID from the last insert
+            return cursor.lastrowid
+
+        finally:
+            if fin and not fin.closed:
+                fin.close()
 
     @classmethod
     @logging
     def delete_message(cls, connection, table_name, no):
 
+        fin = None
+
         try:
             with connection.cursor() as cursor:
-                statement = open(constants.DELETE_MSG_SQL).read()
+                sql_file = path.dirname(path.abspath(__file__)) + sep + constants.DELETE_MSG_SQL
+                fin = open(sql_file)
+                statement = fin.read()
                 statement = statement.replace('table_name', table_name)
                 statement = statement.strip()
-                return cursor.execute(statement, (no,))
+                result = cursor.execute(statement, (no,))
+                connection.commit()
         except Exception:
             raise
+        else:
+            if result:
+                return True
+            else:
+                return False
+        finally:
+            if fin and not fin.closed:
+                fin.close()
 
     @classmethod
     @logging
@@ -177,12 +208,16 @@ class dbUtil:
     @logging
     def create_table(cls, connection, table_name):
 
+        fin = None
+
         try:
             with connection.cursor() as cursor:
-                fin = open(constants.CREATE_TABLE_DDL)
+                ddl_file = path.dirname(path.abspath(__file__)) + sep + constants.CREATE_TABLE_DDL
+                fin = open(ddl_file)
                 ddl = fin.read()
                 ddl = ddl.replace('table_name', table_name)
                 cursor.execute(ddl)
+                connection.commit()
         except Exception:
             raise
 
@@ -190,18 +225,23 @@ class dbUtil:
             return True
 
         finally:
-            fin.close()
+            if fin and not fin.closed:
+                fin.close()
 
     @classmethod
     @logging
     def delete_table(cls, connection, table_name):
 
+        fin = None
+
         try:
             with connection.cursor() as cursor:
-                fin = open(constants.DROP_TABLE_DDL)
+                ddl_file = path.dirname(path.abspath(__file__)) + sep + constants.DROP_TABLE_DDL
+                fin = open(ddl_file)
                 ddl = fin.read()
                 ddl = ddl.replace('table_name', table_name)
                 cursor.execute(ddl)
+                connection.commit()
         except Exception:
             raise
 
@@ -209,7 +249,8 @@ class dbUtil:
             return True
 
         finally:
-            fin.close()
+            if not fin.closed:
+                fin.close()
 
     @classmethod
     @logging

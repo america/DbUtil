@@ -2,16 +2,16 @@
 # -*- coding: utf-8 ^*-
 
 import sys
+from os import path
 from os.path import sep
 from os import pardir
-from os import getcwd
 try:
     import unittest2 as unittest
 except (ImportError):
     import unittest
 import pymysql
 
-pardir_path = getcwd() + sep + pardir
+pardir_path = path.dirname(path.abspath(__file__)) + sep + pardir
 sys.path.append(pardir_path)
 
 from dbUtil import dbUtil

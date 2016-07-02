@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="9" errors="9" failures="0" skip="0"><testcase classname="test_dbUtil.test_dbUtil" name="test_connect" time="0.001"><error type="builtins.AttributeError" message="module 'dbUtil.dbUtil' has no attribute 'connect'"><![CDATA[Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/local/lib/python3.5/unittest/case.py", line 593, in run
+    self.setUp()
+  File "/home/takashi/dev/python/dbUtil/tests/test_dbUtil.py", line 28, in setUp
+    self.conn = dbUtil.connect()
+AttributeError: module 'dbUtil.dbUtil' has no attribute 'connect'
+]]></error></testcase><testcase classname="test_dbUtil.test_dbUtil" name="test_connect_err" time="0.000"><error type="builtins.AttributeError" message="module 'dbUtil.dbUtil' has no attribute 'connect'"><![CDATA[Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/local/lib/python3.5/unittest/case.py", line 593, in run
+    self.setUp()
+  File "/home/takashi/dev/python/dbUtil/tests/test_dbUtil.py", line 28, in setUp
+    self.conn = dbUtil.connect()
+AttributeError: module 'dbUtil.dbUtil' has no attribute 'connect'
+]]></error></testcase><testcase classname="test_dbUtil.test_dbUtil" name="test_create_table" time="0.000"><error type="builtins.AttributeError" message="module 'dbUtil.dbUtil' has no attribute 'connect'"><![CDATA[Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/local/lib/python3.5/unittest/case.py", line 593, in run
+    self.setUp()
+  File "/home/takashi/dev/python/dbUtil/tests/test_dbUtil.py", line 28, in setUp
+    self.conn = dbUtil.connect()
+AttributeError: module 'dbUtil.dbUtil' has no attribute 'connect'
+]]></error></testcase><testcase classname="test_dbUtil.test_dbUtil" name="test_delete_message" time="0.000"><error type="builtins.AttributeError" message="module 'dbUtil.dbUtil' has no attribute 'connect'"><![CDATA[Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/local/lib/python3.5/unittest/case.py", line 593, in run
+    self.setUp()
+  File "/home/takashi/dev/python/dbUtil/tests/test_dbUtil.py", line 28, in setUp
+    self.conn = dbUtil.connect()
+AttributeError: module 'dbUtil.dbUtil' has no attribute 'connect'
+]]></error></testcase><testcase classname="test_dbUtil.test_dbUtil" name="test_delete_message_err" time="0.000"><error type="builtins.AttributeError" message="module 'dbUtil.dbUtil' has no attribute 'connect'"><![CDATA[Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/local/lib/python3.5/unittest/case.py", line 593, in run
+    self.setUp()
+  File "/home/takashi/dev/python/dbUtil/tests/test_dbUtil.py", line 28, in setUp
+    self.conn = dbUtil.connect()
+AttributeError: module 'dbUtil.dbUtil' has no attribute 'connect'
+]]></error></testcase><testcase classname="test_dbUtil.test_dbUtil" name="test_delete_table" time="0.000"><error type="builtins.AttributeError" message="module 'dbUtil.dbUtil' has no attribute 'connect'"><![CDATA[Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/local/lib/python3.5/unittest/case.py", line 593, in run
+    self.setUp()
+  File "/home/takashi/dev/python/dbUtil/tests/test_dbUtil.py", line 28, in setUp
+    self.conn = dbUtil.connect()
+AttributeError: module 'dbUtil.dbUtil' has no attribute 'connect'
+]]></error></testcase><testcase classname="test_dbUtil.test_dbUtil" name="test_disConnect" time="0.000"><error type="builtins.AttributeError" message="module 'dbUtil.dbUtil' has no attribute 'connect'"><![CDATA[Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/local/lib/python3.5/unittest/case.py", line 593, in run
+    self.setUp()
+  File "/home/takashi/dev/python/dbUtil/tests/test_dbUtil.py", line 28, in setUp
+    self.conn = dbUtil.connect()
+AttributeError: module 'dbUtil.dbUtil' has no attribute 'connect'
+]]></error></testcase><testcase classname="test_dbUtil.test_dbUtil" name="test_getAllMsgs" time="0.000"><error type="builtins.AttributeError" message="module 'dbUtil.dbUtil' has no attribute 'connect'"><![CDATA[Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/local/lib/python3.5/unittest/case.py", line 593, in run
+    self.setUp()
+  File "/home/takashi/dev/python/dbUtil/tests/test_dbUtil.py", line 28, in setUp
+    self.conn = dbUtil.connect()
+AttributeError: module 'dbUtil.dbUtil' has no attribute 'connect'
+]]></error></testcase><testcase classname="test_dbUtil.test_dbUtil" name="test_insert_message" time="0.000"><error type="builtins.AttributeError" message="module 'dbUtil.dbUtil' has no attribute 'connect'"><![CDATA[Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/local/lib/python3.5/unittest/case.py", line 593, in run
+    self.setUp()
+  File "/home/takashi/dev/python/dbUtil/tests/test_dbUtil.py", line 28, in setUp
+    self.conn = dbUtil.connect()
+AttributeError: module 'dbUtil.dbUtil' has no attribute 'connect'
+]]></error></testcase></testsuite>

@@ -1,0 +1,1 @@
+INSERT INTO table_name (CONTENTS) VALUES (%s)

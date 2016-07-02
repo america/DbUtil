@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from logging import getLogger, StreamHandler, Formatter, DEBUG
+from logging import getLogger, StreamHandler, Formatter, INFO
 
 
 logger = getLogger(__file__)
-logger.setLevel(DEBUG)
+logger.setLevel(INFO)
 handler = StreamHandler()
 handler.setFormatter(Formatter(fmt='%(asctime)s %(levelname)s %(message)s',
                                datefmt='%Y-%m-%d %I:%M:%S',))

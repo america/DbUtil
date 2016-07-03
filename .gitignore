@@ -2,3 +2,6 @@
 __pycache__
 *.sh
 backup
+.git
+.coverage
+nosetests.xml

@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from dbUtil import dbUtil
+from dbUtil.dbUtil import dbUtil
 import traceback
 from logging import getLogger, StreamHandler, Formatter, FileHandler, DEBUG
 import argparse
-import constants
+from constants import constants
 from deco import logging
 import pymysql
 
@@ -110,7 +110,7 @@ class manage_message_list():
     def show_all_tables(self, args):
 
         try:
-            all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(self.con)]
+            all_tables = dbUtil.get_all_tables(self.con)
 
             self.logger.info(constants.SEPARATE_LINE)
             cnt = 1

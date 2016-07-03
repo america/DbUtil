@@ -3,8 +3,7 @@
 
 from os import path
 from os.path import sep
-from os import pardir
-import sys
+# from os import pardir
 import pymysql
 from random import choice
 from logging import getLogger, StreamHandler, Formatter, INFO
@@ -13,8 +12,8 @@ try:
 except ImportError:
     import ConfigParser as configparser
 
-pardir_path = path.dirname(path.abspath(__file__)) + sep + pardir
-sys.path.append(pardir_path)
+# pardir_path = path.dirname(path.abspath(__file__)) + sep + pardir
+# sys.path.append(pardir_path)
 from constants import constants
 from collections import namedtuple
 from deco import logging
@@ -36,7 +35,6 @@ class dbUtil:
         config = configparser.ConfigParser()
 
         db_info_ini = path.dirname(path.abspath(__file__)) + sep + constants.DB_INFO_INI
-
         try:
             if not path.exists(db_info_ini):
                 raise IOError(constants.DB_INFO_INI_NOT_EXIST_MSG)
@@ -263,21 +261,30 @@ class dbUtil:
     @logging
     def get_all_tables(cls, connection):
 
+        fin = None
+
         try:
             with connection.cursor() as cursor:
-                sql = open(constants.SELECT_ALL_TABLES_SQL).read()
+                sql_file = path.dirname(path.abspath(__file__)) + sep + constants.SELECT_ALL_TABLES_SQL
+                fin = open(sql_file)
+                sql = fin.read()
                 cursor.execute(sql)
                 tables = cursor.fetchall()
         except Exception:
             raise
 
-        if not tables:
-            logger.info(constants.SEPARATE_LINE)
-            logger.error(constants.NO_TABLE_EXIST_MSG)
-            dbUtil.disConnect(connection)
-            sys.exit(1)
-
-        return tables
+        else:
+            if not tables:
+                logger.info(constants.SEPARATE_LINE)
+                logger.error(constants.NO_TABLE_EXIST_MSG)
+                logger.info(constants.SEPARATE_LINE)
+                return []
+            else:
+                all_tables = [table_name_json['table_name'] for table_name_json in tables]
+                return all_tables
+        finally:
+            if fin and not fin.closed:
+                fin.close()
 
     @classmethod
     @logging

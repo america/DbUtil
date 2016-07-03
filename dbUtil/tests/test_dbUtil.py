@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 ^*-
 
-import sys
-from os import path
-from os.path import sep
-from os import pardir
+# import sys
+# from os import path
+# from os.path import sep
+# from os import pardir
 try:
     import unittest2 as unittest
 except (ImportError):
     import unittest
 import pymysql
 
-pardir_path = path.dirname(path.abspath(__file__)) + sep + pardir
-sys.path.append(pardir_path)
+# pardir_path = path.dirname(path.abspath(__file__)) + sep + pardir
+# sys.path.append(pardir_path)
 
-from dbUtil import dbUtil
+from dbUtil.dbUtil import dbUtil
 from constants import constants
 
 

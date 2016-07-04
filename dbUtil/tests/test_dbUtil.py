@@ -66,6 +66,59 @@ class test_dbUtil():
 
         dbUtil.getAllMsgs(self.conn, 'not_exist_table')
 
+    def test_getRandomMsgs(self):
+
+        expected = ('test_table', 1, 'test_message')
+        dbUtil.insert_message(self.conn, 'test_table', 'test_message')
+
+        constants.SELECT_ALL_TABLES_SQL = 'sql/select_all_tables_one_table.sql'
+        (table_name, msgs) = dbUtil.getRandomMsgs(self.conn)
+
+        actual = (table_name, msgs[0]['NO'], msgs[0]['CONTENTS'])
+        eq_(actual, expected)
+
+        constants.SELECT_ALL_TABLES_SQL = 'sql/select_all_tables.sql'
+
+    @raises(OSError)
+    def test_get_RandomMsgs_err(self):
+
+        try:
+            constants.SELECT_ALL_TABLES_SQL = 'no_exists_file'
+            dbUtil.getRandomMsgs(self.conn)
+        finally:
+            constants.SELECT_ALL_TABLES_SQL = "sql/select_all_tables.sql"
+
+    def test_get_single_msg(self):
+
+        expected = 'test_message'
+        dbUtil.insert_message(self.conn, 'test_table', 'test_message')
+
+        actual = dbUtil.get_single_msg(self.conn, 'test_table', 1)
+
+        eq_(actual, expected)
+
+    def test_get_single_msg_not_exist_msg(self):
+
+        expected = ''
+
+        actual = dbUtil.get_single_msg(self.conn, 'test_table', 1)
+
+        eq_(actual, expected)
+
+    @raises(pymysql.err.ProgrammingError)
+    def test_get_single_msg_err(self):
+
+        dbUtil.get_single_msg(self.conn, 'not_exist_table', 1)
+
+    def test_search_msg_by_kword(self):
+
+        expected = (1, 'test_message', 'test_table',)
+        dbUtil.insert_message(self.conn, 'test_table', 'test_message')
+
+        actual = dbUtil.search_msg_by_kword(self.conn, 'test_message')
+
+        eq_((actual[0].nos[0], actual[0].msgs[0], actual[0].table_name), expected)
+
     def test_get_all_tables(self):
 
         expected = ['crazy', 'precepts', 'python_tips', 'songs', 'test_table']
@@ -76,7 +129,7 @@ class test_dbUtil():
     def test_get_all_tables_no_table(self):
 
         expected = []
-        constants.SELECT_ALL_TABLES_SQL = 'sql/select_all_tables_test.sql'
+        constants.SELECT_ALL_TABLES_SQL = 'sql/select_all_tables_no_table.sql'
         actual = dbUtil.get_all_tables(self.conn)
 
         eq_(actual, expected)
@@ -98,10 +151,19 @@ class test_dbUtil():
         actual = dbUtil.delete_message(self.conn, 'test_table', 1)
         eq_(actual, expected)
 
-    def test_delete_message_err(self):
+    def test_delete_message_not_exist_message(self):
         expected = False
         actual = dbUtil.delete_message(self.conn, 'test_table', 2)
         eq_(actual, expected)
+
+    @raises(OSError)
+    def test_delete_message_err(self):
+
+        try:
+            constants.DELETE_MSG_SQL = 'no_exists_file'
+            dbUtil.delete_message(self.conn, 'test_table', 1)
+        finally:
+            constants.DELETE_MSG_SQL = "sql/delete_msg.sql"
 
     def test_delete_table(self):
         expected = True

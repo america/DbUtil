@@ -3,7 +3,6 @@
 
 from os import path
 from os.path import sep
-# from os import pardir
 import pymysql
 from random import choice
 from logging import getLogger, StreamHandler, Formatter, INFO
@@ -12,8 +11,6 @@ try:
 except ImportError:
     import ConfigParser as configparser
 
-# pardir_path = path.dirname(path.abspath(__file__)) + sep + pardir
-# sys.path.append(pardir_path)
 from constants import constants
 from collections import namedtuple
 from deco import logging
@@ -86,19 +83,26 @@ class dbUtil:
     @logging
     def getRandomMsgs(cls, connection):
 
-        all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(connection)]
+        all_tables = dbUtil.get_all_tables(connection)
 
         table_name = choice(all_tables)
 
         try:
             with connection.cursor() as cursor:
-                sql = open(constants.SELECT_ALL_MSG_SQL).read()
+                sql_file = path.dirname(path.abspath(__file__)) + sep + constants.SELECT_ALL_MSG_SQL
+                fin = open(sql_file)
+                sql = fin.read()
                 sql = sql.replace('table_name', table_name)
                 cursor.execute(sql)
                 msgs = cursor.fetchall()
                 return (table_name, msgs)
         except Exception:
             raise
+        else:
+            return msgs
+        finally:
+            if fin and not fin.closed:
+                fin.close()
 
     @classmethod
     @logging
@@ -174,35 +178,58 @@ class dbUtil:
     @logging
     def get_single_msg(cls, connection, table_name, no):
 
+        fin = None
+
         try:
             with connection.cursor() as cursor:
-                statement = open(constants.SELECT_SINGLE_MSG_SQL).read()
+                sql_file = path.dirname(path.abspath(__file__)) + sep + constants.SELECT_SINGLE_MSG_SQL
+                fin = open(sql_file)
+                statement = fin.read()
                 statement = statement.replace('table_name', table_name)
                 cursor.execute(statement, (no,))
-                msg = cursor.fetchone()
+                result_json = cursor.fetchone()
+                if result_json:
+                    msg = result_json['CONTENTS']
+                else:
+                    msg = ''
         except Exception:
             raise
-
-        return msg
+        else:
+            return msg
+        finally:
+            if fin and not fin.closed:
+                fin.close()
 
     @classmethod
     @logging
     def search_msg_by_kword(cls, connection, keyword):
 
-        all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(connection)]
+        all_tables = dbUtil.get_all_tables(connection)
 
         msg_list = []
+
+        fin = None
 
         try:
             for table_name in all_tables:
                 with connection.cursor() as cursor:
-                    sql = open(constants.SELECT_MSG_BY_KEWORD_SQL).read()
+                    sql_file = path.dirname(path.abspath(__file__)) + sep + constants.SELECT_MSG_BY_KEWORD_SQL
+                    fin = open(sql_file)
+                    sql = fin.read()
                     statement = sql.replace('table_name', table_name)
                     cursor.execute(statement, ('%' + keyword + '%',))
-                    results = cursor.fetchall()
-                    Result_tuple = namedtuple('Result_tuple', 'result_json table_name')
-                    result_tuple = Result_tuple(results, table_name)
-                    msg_list.append(result_tuple)
+                    result_jsons = cursor.fetchall()
+
+                    if result_jsons:
+                        nos = []
+                        msgs = []
+                        for result_json in result_jsons:
+                            nos.append(result_json['NO'])
+                            msgs.append(result_json['CONTENTS'])
+
+                        Result_tuple = namedtuple('Result_tuple', 'nos msgs table_name')
+                        result_tuple = Result_tuple(nos, msgs, table_name)
+                        msg_list.append(result_tuple)
 
         except Exception:
             raise

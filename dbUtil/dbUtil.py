@@ -67,17 +67,23 @@ class dbUtil:
     @logging
     def getTwInfo(cls, connection):
 
+        fin = None
+
         try:
             with connection.cursor() as cursor:
-                # Read a single record
-                sql = open(constants.SELECT_USER_INFO_SQL).read()
+                sql_file = path.dirname(path.abspath(__file__)) + sep + constants.SELECT_USER_INFO_SQL
+                fin = open(sql_file)
+                sql = fin.read()
                 cursor.execute(sql)
                 twInfo = cursor.fetchone()
         except Exception:
             raise
 
         else:
-            return twInfo
+            if twInfo:
+                return (True, twInfo)
+            else:
+                return (False, [])
 
     @classmethod
     @logging
@@ -94,12 +100,17 @@ class dbUtil:
                 sql = fin.read()
                 sql = sql.replace('table_name', table_name)
                 cursor.execute(sql)
-                msgs = cursor.fetchall()
-                return (table_name, msgs)
+                msgs_jsons = cursor.fetchall()
         except Exception:
             raise
         else:
-            return msgs
+            if not msgs_jsons:
+                return []
+            else:
+                nos = [msgs_json['NO'] for msgs_json in msgs_jsons]
+                msgs = [msgs_json['CONTENTS'] for msgs_json in msgs_jsons]
+
+            return (table_name, nos, msgs)
         finally:
             if fin and not fin.closed:
                 fin.close()
@@ -115,11 +126,16 @@ class dbUtil:
                 sql = fin.read()
                 sql = sql.replace('table_name', table_name)
                 cursor.execute(sql)
-                msgs = cursor.fetchall()
+                all_msgs_jsons = cursor.fetchall()
         except BaseException:
             raise
         else:
-            return msgs
+            if not all_msgs_jsons:
+                return []
+            else:
+                nos = [all_msgs_json['NO'] for all_msgs_json in all_msgs_jsons]
+                msgs = [all_msgs_json['CONTENTS'] for all_msgs_json in all_msgs_jsons]
+                return (nos, msgs)
         finally:
             if fin and not fin.closed:
                 fin.close()
@@ -221,14 +237,12 @@ class dbUtil:
                     result_jsons = cursor.fetchall()
 
                     if result_jsons:
-                        nos = []
-                        msgs = []
-                        for result_json in result_jsons:
-                            nos.append(result_json['NO'])
-                            msgs.append(result_json['CONTENTS'])
+                        nos = [all_result_json['NO'] for all_result_json in result_jsons]
+                        msgs = [all_result_json['CONTENTS'] for all_result_json in result_jsons]
 
                         Result_tuple = namedtuple('Result_tuple', 'nos msgs table_name')
                         result_tuple = Result_tuple(nos, msgs, table_name)
+
                         msg_list.append(result_tuple)
 
         except Exception:

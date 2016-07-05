@@ -35,6 +35,19 @@ class test_dbUtil():
         finally:
             constants.DB_INFO_INI = 'db_info.ini'
 
+    def test_getTwInfo(self):
+        expected = True
+        (result, twInfo) = dbUtil.getTwInfo(self.conn)
+        actual = result
+        eq_(expected, actual)
+
+    def test_getTwInfo_not_exist(self):
+        expected = False
+        constants.SELECT_USER_INFO_SQL = 'sql/selectUserInfo_not_exist.sql'
+        (result, twInfo) = dbUtil.getTwInfo(self.conn)
+        actual = result
+        eq_(expected, actual)
+
     def test_create_table(self):
         expected = True
         actual = dbUtil.create_table(self.conn, 'case_table')
@@ -56,9 +69,16 @@ class test_dbUtil():
 
         expected = (1, 'test_message')
         dbUtil.insert_message(self.conn, 'test_table', 'test_message')
-        result_json = dbUtil.getAllMsgs(self.conn, 'test_table')
+        (nos, msgs) = dbUtil.getAllMsgs(self.conn, 'test_table')
 
-        actual = (result_json[0]['NO'], result_json[0]['CONTENTS'])
+        actual = (nos[0], msgs[0])
+        eq_(actual, expected)
+
+    def test_getAllMsgs_not_exist_msg(self):
+
+        expected = []
+        actual = dbUtil.getAllMsgs(self.conn, 'test_table')
+
         eq_(actual, expected)
 
     @raises(pymysql.err.ProgrammingError)
@@ -72,9 +92,20 @@ class test_dbUtil():
         dbUtil.insert_message(self.conn, 'test_table', 'test_message')
 
         constants.SELECT_ALL_TABLES_SQL = 'sql/select_all_tables_one_table.sql'
-        (table_name, msgs) = dbUtil.getRandomMsgs(self.conn)
+        (table_name, nos, msgs) = dbUtil.getRandomMsgs(self.conn)
 
-        actual = (table_name, msgs[0]['NO'], msgs[0]['CONTENTS'])
+        actual = (table_name, nos[0], msgs[0])
+        eq_(actual, expected)
+
+        constants.SELECT_ALL_TABLES_SQL = 'sql/select_all_tables.sql'
+
+    def test_getRandomMsgs_not_exist_msg(self):
+
+        expected = []
+
+        constants.SELECT_ALL_TABLES_SQL = 'sql/select_all_tables_one_table.sql'
+        actual = dbUtil.getRandomMsgs(self.conn)
+
         eq_(actual, expected)
 
         constants.SELECT_ALL_TABLES_SQL = 'sql/select_all_tables.sql'

@@ -61,10 +61,9 @@ class manage_message_list():
 
             for no in no_list:
                 try:
-                    msg_json = dbUtil.get_single_msg(self.con, table_name, no)
+                    msg = dbUtil.get_single_msg(self.con, table_name, no)
 
-                    if msg_json:
-                        msg = msg_json.get('CONTENTS', constants.NOT_EXIST_MSG)
+                    if msg:
 
                         dbUtil.delete_message(self.con, table_name, no)
 

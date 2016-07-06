@@ -2,12 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from dbUtil.dbUtil import dbUtil
+from os.path import dirname
+from os.path import sep
+from os import pardir
+
+dbutil_path = dirname(__file__) + pardir + sep + 'DbUtil'
+sys.path.append(dbutil_path)
+from dbUtil import dbUtil
 import traceback
 from logging import getLogger, StreamHandler, Formatter, FileHandler, DEBUG
 import argparse
 from constants import constants
-from deco import logging
+from util.deco import logging
 import pymysql
 
 
@@ -201,7 +207,7 @@ class manage_message_list():
     @logging
     def exist_table(self, table_name):
 
-        all_tables = [table_name_json['table_name'] for table_name_json in dbUtil.get_all_tables(self.con)]
+        all_tables = dbUtil.get_all_tables(self.con)
 
         if table_name not in all_tables:
             self.logger.error(constants.SEPARATE_LINE)

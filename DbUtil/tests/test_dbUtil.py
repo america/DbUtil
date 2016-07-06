@@ -4,7 +4,7 @@
 from nose.tools import eq_, raises, ok_
 import pymysql
 
-from dbUtil.dbUtil import dbUtil
+from DbUtil.dbUtil import dbUtil
 from constants import constants
 # from exception import FileNotFoundError
 

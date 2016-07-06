@@ -13,7 +13,7 @@ except ImportError:
 
 from constants import constants
 from collections import namedtuple
-from deco import logging
+from util.deco import logging
 
 logger = getLogger(__file__)
 logger.setLevel(INFO)
@@ -84,6 +84,9 @@ class dbUtil:
                 return (True, twInfo)
             else:
                 return (False, [])
+        finally:
+            if fin and not fin.closed:
+                fin.close()
 
     @classmethod
     @logging

@@ -48,15 +48,15 @@ class test_manage_message_list():
 
     def setup(self):
         self.conn = dbUtil.connect()
-        dbUtil.create_table(self.conn, 'test_table')
+        dbUtil.create_table(self.conn, 'test_table_for_manage')
 
     def teardown(self):
-        dbUtil.delete_table(self.conn, 'test_table')
+        dbUtil.delete_table(self.conn, 'test_table_for_manage')
         dbUtil.disConnect(self.conn)
 
     def test_insert(self):
         expected = 0
-        cmd = self.python_cmd + " " + pardir_path + "manage_message_list.py insert test_table test_message"
+        cmd = self.python_cmd + " " + pardir_path + "manage_message_list.py insert test_table_for_manage test_message"
         logger.debug(constants.SEPARATE_LINE)
         logger.debug('cmd: ' + cmd)
         logger.debug(constants.SEPARATE_LINE)

@@ -5,8 +5,10 @@ import sys
 from os.path import dirname
 from os.path import sep
 from os import pardir
+from os import path
 
-dbutil_path = dirname(__file__) + pardir + sep + 'DbUtil'
+dbutil_path = dirname(path.abspath(__file__)) + sep + pardir + sep + 'DbUtil'
+print(dbutil_path)
 sys.path.append(dbutil_path)
 from dbUtil import dbUtil
 import traceback
@@ -41,7 +43,6 @@ class manage_message_list():
             try:
                 no = dbUtil.insert_message(self.con, table_name, message)
                 if no:
-                    self.con.commit()
 
                     self.logger.info(constants.SEPARATE_LINE)
                     self.logger.info("'" + message + "'")
@@ -274,14 +275,15 @@ if __name__ == '__main__':
 
         if not has_func:
             parser.parse_args(['-h'])
-            sys.exit(1)
-
-        return args
+            return
+        else:
+            return args
 
     try:
         manager = manage_message_list()
         args = _parse()
-        args.func(args)
+        if args:
+            args.func(args)
     except pymysql.InternalError as error:
 
         (code, message) = error.args

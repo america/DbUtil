@@ -27,14 +27,6 @@ class test_dbUtil():
         ok_(isinstance(_conn, expected))
         dbUtil.disConnect(_conn)
 
-    @raises(IOError)
-    def test_connect_err(self):
-        constants.DB_INFO_INI = 'not_exist_file'
-        try:
-            dbUtil.connect()
-        finally:
-            constants.DB_INFO_INI = 'db_info.ini'
-
     def test_getTwInfo(self):
         expected = True
         (result, twInfo) = dbUtil.getTwInfo(self.conn)

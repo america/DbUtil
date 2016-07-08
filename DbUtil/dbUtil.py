@@ -6,14 +6,11 @@ from os.path import sep
 import pymysql
 from random import choice
 from logging import getLogger, StreamHandler, Formatter, INFO
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
 
 from constants import constants
 from collections import namedtuple
 from util.deco import logging
+from pit import Pit
 
 logger = getLogger(__file__)
 logger.setLevel(INFO)
@@ -29,33 +26,28 @@ class dbUtil:
     @logging
     def connect(cls):
 
-        config = configparser.ConfigParser()
-
-        db_info_ini = path.dirname(path.abspath(__file__)) + sep + constants.DB_INFO_INI
         try:
-            if not path.exists(db_info_ini):
-                raise IOError(constants.DB_INFO_INI_NOT_EXIST_MSG)
-            else:
-                config.read(db_info_ini)
 
-                host = config['info']['host']
-                user = config['info']['user']
-                password = config['info']['password']
-                db = config['info']['db']
+            db_info = Pit.get('db_info')
 
-                # Connect to the database
-                connection = pymysql.connect(host=host,
-                                             user=user,
-                                             password=password,
-                                             db=db,
-                                             charset='utf8mb4',
-                                             cursorclass=pymysql.cursors.DictCursor)
+            host = db_info['host']
+            user = db_info['username']
+            password = db_info['password']
+            db = db_info['db']
 
-                connection.autocommit(False)
+            # Connect to the database
+            connection = pymysql.connect(host=host,
+                                         user=user,
+                                         password=password,
+                                         db=db,
+                                         charset='utf8mb4',
+                                         cursorclass=pymysql.cursors.DictCursor)
 
-                logger.debug(constants.SEPARATE_LINE)
-                logger.debug(constants.DB_CONNECTION_ESTABLISHED_MSG)
-                logger.debug(constants.SEPARATE_LINE)
+            connection.autocommit(False)
+
+            logger.debug(constants.SEPARATE_LINE)
+            logger.debug(constants.DB_CONNECTION_ESTABLISHED_MSG)
+            logger.debug(constants.SEPARATE_LINE)
         except IOError:
             raise
         except Exception:

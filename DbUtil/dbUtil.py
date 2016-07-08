@@ -15,8 +15,7 @@ from pit import Pit
 logger = getLogger(__file__)
 logger.setLevel(INFO)
 handler = StreamHandler()
-handler.setFormatter(Formatter(fmt='%(asctime)s %(levelname)s %(message)s',
-                               datefmt='%Y-%m-%d %I:%M:%S',))
+handler.setFormatter(Formatter(fmt='%(levelname)s %(message)s'))
 logger.addHandler(handler)
 
 
@@ -311,9 +310,9 @@ class dbUtil:
 
         else:
             if not tables:
-                logger.info(constants.SEPARATE_LINE)
+                logger.error(constants.SEPARATE_LINE)
                 logger.error(constants.NO_TABLE_EXIST_MSG)
-                logger.info(constants.SEPARATE_LINE)
+                logger.error(constants.SEPARATE_LINE)
                 return []
             else:
                 all_tables = [table_name_json['table_name'] for table_name_json in tables]

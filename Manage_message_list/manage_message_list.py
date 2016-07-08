@@ -27,8 +27,7 @@ class manage_message_list():
         self.logger = logger if logger else getLogger("log")
         self.logger.setLevel(DEBUG)
         self.handler = StreamHandler()
-        self.handler.setFormatter(Formatter(fmt='%(asctime)s %(levelname)s %(message)s',
-                                  datefmt='%Y-%m-%d %I:%M:%S',))
+        self.handler.setFormatter(Formatter(fmt='%(levelname)s %(message)s'))
         self.logger.addHandler(self.handler)
 
         self.con = dbUtil.connect()
@@ -48,6 +47,10 @@ class manage_message_list():
                     self.logger.info("'" + message + "'")
                     self.logger.info(constants.INSERT_MSG + table_name + " at No: " + str(no))
                     self.logger.info(constants.SEPARATE_LINE)
+
+                    return True
+                else:
+                    return False
 
             except Exception:
                 raise
@@ -283,7 +286,9 @@ if __name__ == '__main__':
         manager = manage_message_list()
         args = _parse()
         if args:
-            args.func(args)
+            result = args.func(args)
+
+            sys.exit()
     except pymysql.InternalError as error:
 
         (code, message) = error.args

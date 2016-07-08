@@ -20,7 +20,7 @@ CREATE_TABLE_DDL = "sql/create_table.ddl"
 DROP_TABLE_DDL = "sql/drop_table.ddl"
 
 # message
-SEPARATE_LINE = "--------------------"
+SEPARATE_LINE = "-" * 80
 NOT_EXIST_MSG = "This No doesn't exist."
 INSERT_MSG = "This message was inserted in "
 DELETE_MSG = "This message was deleted from "

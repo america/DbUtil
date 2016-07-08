@@ -5,3 +5,4 @@ backup
 .git
 .coverage
 nosetests.xml
+*.ini

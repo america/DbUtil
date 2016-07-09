@@ -69,23 +69,31 @@ class manage_message_list():
 
                     if msg:
 
-                        dbUtil.delete_message(self.con, table_name, no)
-
                         if self.yes_no_input(table_name, no, msg):
+                            dbUtil.delete_message(self.con, table_name, no)
 
-                            self.con.commit()
                             self.logger.info(constants.SEPARATE_LINE)
                             self.logger.info("table_name: " + table_name)
                             self.logger.info("no: " + str(no))
                             self.logger.info("msg: " + msg)
                             self.logger.info(constants.DELETE_MSG + table_name)
                             self.logger.info(constants.SEPARATE_LINE)
+
+                            return True
+                        else:
+                            return False
+
                     else:
                         self.logger.info(constants.SEPARATE_LINE)
                         self.logger.info(constants.NOT_EXIST_MSG)
                         self.logger.info(constants.SEPARATE_LINE)
+
+                        return False
                 except Exception:
                     raise
+
+        else:
+            return False
 
     @logging
     def show_all_msgs(self, args):

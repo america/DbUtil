@@ -14,6 +14,7 @@ pardir_path = dirname(path.abspath(__file__)) + sep + pardir + sep
 sys.path.append(pardir_path)
 from Manage_message_list.manage_message_list import manage_message_list
 from collections import namedtuple
+from unittest.mock import patch
 
 
 class test_manage_message_list():
@@ -47,5 +48,22 @@ class test_manage_message_list():
         Args = namedtuple('Args', 'table_name message')
         args = Args('wrong_table_name', 'test_message')
         actual = target.insert(args)
+
+        eq_(actual, expected)
+
+    def test_delete(self):
+        expected = True
+
+        target = manage_message_list()
+
+        InsertArgs = namedtuple('InsertArgs', 'table_name message')
+        args = InsertArgs('test_table_for_manage', 'test_message')
+        isInserted = target.insert(args)
+
+        if isInserted:
+            DeleteArgs = namedtuple('DeleteArgs', 'table_name no message')
+            args = DeleteArgs('test_table_for_manage', [1], 'test_message')
+            with patch('builtins.input', return_value='y'):
+                actual = target.delete(args)
 
         eq_(actual, expected)

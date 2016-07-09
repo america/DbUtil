@@ -51,19 +51,34 @@ class test_manage_message_list():
 
         eq_(actual, expected)
 
-    def test_delete(self):
+    def test_delete_answer_yes(self):
         expected = True
 
         target = manage_message_list()
 
         InsertArgs = namedtuple('InsertArgs', 'table_name message')
         args = InsertArgs('test_table_for_manage', 'test_message')
-        isInserted = target.insert(args)
+        target.insert(args)
 
-        if isInserted:
-            DeleteArgs = namedtuple('DeleteArgs', 'table_name no message')
-            args = DeleteArgs('test_table_for_manage', [1], 'test_message')
-            with patch('builtins.input', return_value='y'):
-                actual = target.delete(args)
+        DeleteArgs = namedtuple('DeleteArgs', 'table_name no message')
+        args = DeleteArgs('test_table_for_manage', [1], 'test_message')
+        with patch('builtins.input', return_value='y'):
+            actual = target.delete(args)
+
+        eq_(actual, expected)
+
+    def test_delete_answer_no(self):
+        expected = False
+
+        target = manage_message_list()
+
+        InsertArgs = namedtuple('InsertArgs', 'table_name message')
+        args = InsertArgs('test_table_for_manage', 'test_message')
+        target.insert(args)
+
+        DeleteArgs = namedtuple('DeleteArgs', 'table_name no message')
+        args = DeleteArgs('test_table_for_manage', [1], 'test_message')
+        with patch('builtins.input', return_value='n'):
+            actual = target.delete(args)
 
         eq_(actual, expected)

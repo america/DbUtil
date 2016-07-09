@@ -9,6 +9,7 @@ from os import path
 from nose.tools import eq_
 
 from DbUtil.dbUtil import dbUtil
+
 pardir_path = dirname(path.abspath(__file__)) + sep + pardir + sep
 sys.path.append(pardir_path)
 from Manage_message_list.manage_message_list import manage_message_list

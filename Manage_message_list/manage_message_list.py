@@ -48,12 +48,12 @@ class manage_message_list():
                     self.logger.info(constants.INSERT_MSG + table_name + " at No: " + str(no))
                     self.logger.info(constants.SEPARATE_LINE)
 
-                    return True
-                else:
-                    return False
-
             except Exception:
                 raise
+            else:
+                return True
+        else:
+            return False
 
     @logging
     def delete(self, args):
@@ -216,9 +216,9 @@ class manage_message_list():
             self.logger.error(constants.SEPARATE_LINE)
             self.logger.error(constants.TABLE_NOT_EXIST_MSG.replace('table_name', table_name))
             self.logger.error(constants.SEPARATE_LINE)
-            sys.exit(1)
-
-        return True
+            return False
+        else:
+            return True
 
     @logging
     def make_filehandler_logger(self, handler_prefix, logger_name):

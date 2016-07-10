@@ -82,3 +82,27 @@ class test_manage_message_list():
             actual = target.delete(args)
 
         eq_(actual, expected)
+
+    def test_delete_answer_not_exist_msg(self):
+        expected = False
+
+        target = manage_message_list()
+
+        DeleteArgs = namedtuple('DeleteArgs', 'table_name no message')
+        args = DeleteArgs('test_table_for_manage', [1], 'test_message')
+        with patch('builtins.input', return_value='n'):
+            actual = target.delete(args)
+
+        eq_(actual, expected)
+
+    def test_delete_answer_not_exist_table(self):
+        expected = False
+
+        target = manage_message_list()
+
+        DeleteArgs = namedtuple('DeleteArgs', 'table_name no message')
+        args = DeleteArgs('wrong_table_name', [1], 'test_message')
+        with patch('builtins.input', return_value='n'):
+            actual = target.delete(args)
+
+        eq_(actual, expected)

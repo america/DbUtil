@@ -8,7 +8,6 @@ from os import pardir
 from os import path
 
 dbutil_path = dirname(path.abspath(__file__)) + sep + pardir + sep + 'DbUtil'
-print(dbutil_path)
 sys.path.append(dbutil_path)
 from dbUtil import dbUtil
 import traceback

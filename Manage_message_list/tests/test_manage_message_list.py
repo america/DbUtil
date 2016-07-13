@@ -15,6 +15,7 @@ sys.path.append(pardir_path)
 from Manage_message_list.manage_message_list import manage_message_list
 from collections import namedtuple
 from unittest.mock import patch
+from DbUtil.constants import constants
 
 
 class test_manage_message_list():
@@ -104,5 +105,50 @@ class test_manage_message_list():
         args = DeleteArgs('wrong_table_name', [1], 'test_message')
         with patch('builtins.input', return_value='n'):
             actual = target.delete(args)
+
+        eq_(actual, expected)
+
+    def test_show_all_msgs(self):
+        expected = ([1, 2], ['test_message01', 'test_message02'])
+
+        target = manage_message_list()
+
+        InsertArgs = namedtuple('InsertArgs', 'table_name message')
+        args = InsertArgs('test_table_for_manage', 'test_message01')
+        target.insert(args)
+        args = InsertArgs('test_table_for_manage', 'test_message02')
+        target.insert(args)
+
+        ShowAllArgs = namedtuple('ShowAllArgs', 'table_name')
+        args = ShowAllArgs('test_table_for_manage')
+
+        actual = target.show_all_msgs(args)
+
+        eq_(actual, expected)
+        constants.SELECT_ALL_MSG_SQL = 'sql/select_all_msg.sql'
+
+    def test_show_all_msgs_not_exist_msg(self):
+        expected = False
+
+        target = manage_message_list()
+
+        ShowAllArgs = namedtuple('ShowAllArgs', 'table_name')
+        args = ShowAllArgs('test_table_for_manage')
+
+        constants.SELECT_ALL_MSG_SQL = 'sql/select_all_tables_manage.sql'
+        actual = target.show_all_msgs(args)
+
+        eq_(actual, expected)
+
+    def test_show_all_msgs_not_exist_table(self):
+        expected = False
+
+        target = manage_message_list()
+
+        ShowAllArgs = namedtuple('ShowAllArgs', 'table_name')
+        args = ShowAllArgs('wrong_table_name')
+
+        constants.SELECT_ALL_MSG_SQL = 'sql/select_all_tables_manage.sql'
+        actual = target.show_all_msgs(args)
 
         eq_(actual, expected)

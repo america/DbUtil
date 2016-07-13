@@ -102,25 +102,35 @@ class manage_message_list():
         if self.exist_table(table_name):
 
             try:
-                all_msgs = dbUtil.getAllMsgs(self.con, table_name)
 
-                # logger for message list
-                self.list_logger = self.make_filehandler_logger(table_name, 'message_list')
+                results = dbUtil.getAllMsgs(self.con, table_name)
+                if results:
+                    (no_list, msg_list) = dbUtil.getAllMsgs(self.con, table_name)
 
-                for msg_json in all_msgs:
-                    no = msg_json['NO']
-                    msg = msg_json['CONTENTS']
+                    # logger for message list
+                    self.list_logger = self.make_filehandler_logger(table_name, 'message_list')
 
-                    self.logger.info(constants.SEPARATE_LINE)
-                    self.list_logger.info(constants.SEPARATE_LINE)
-                    self.logger.info("no: " + str(no))
-                    self.logger.info("msg: " + str(msg))
-                    self.list_logger.info("no: " + str(no))
-                    self.list_logger.info("msg: " + str(msg))
-                    self.logger.info(constants.SEPARATE_LINE)
-                    self.list_logger.info(constants.SEPARATE_LINE)
+                    index = 0
+                    while index < len(no_list):
+                        self.logger.info(constants.SEPARATE_LINE)
+                        self.logger.info("no: " + str(no_list[index]))
+                        self.logger.info("msg: " + str(msg_list[index]))
+                        self.logger.info(constants.SEPARATE_LINE)
+
+                        self.list_logger.info(constants.SEPARATE_LINE)
+                        self.list_logger.info("no: " + str(no_list[index]))
+                        self.list_logger.info("msg: " + str(msg_list[index]))
+                        self.list_logger.info(constants.SEPARATE_LINE)
+
+                        index = index + 1
+
+                    return (no_list, msg_list)
+                else:
+                    return False
             except Exception:
                 raise
+        else:
+            return False
 
     @logging
     def show_all_tables(self, args):

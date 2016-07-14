@@ -122,13 +122,14 @@ class manage_message_list():
                         self.list_logger.info("msg: " + str(msg_list[index]))
                         self.list_logger.info(constants.SEPARATE_LINE)
 
-                        index = index + 1
+                        index += 1
 
-                    return (no_list, msg_list)
                 else:
                     return False
             except Exception:
                 raise
+            else:
+                return (no_list, msg_list)
         else:
             return False
 
@@ -148,6 +149,8 @@ class manage_message_list():
 
         except Exception:
             raise
+        else:
+            return all_tables
 
     @logging
     def search(self, args):

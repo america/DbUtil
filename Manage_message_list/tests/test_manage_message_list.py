@@ -6,7 +6,7 @@ from os.path import dirname
 from os.path import sep
 from os import pardir
 from os import path
-from nose.tools import eq_
+from nose.tools import eq_, raises
 
 from DbUtil.dbUtil import dbUtil
 
@@ -15,7 +15,7 @@ sys.path.append(pardir_path)
 from Manage_message_list.manage_message_list import manage_message_list
 from collections import namedtuple
 from unittest.mock import patch
-from DbUtil.constants import constants
+from constants import constants
 
 
 class test_manage_message_list():
@@ -125,7 +125,6 @@ class test_manage_message_list():
         actual = target.show_all_msgs(args)
 
         eq_(actual, expected)
-        constants.SELECT_ALL_MSG_SQL = 'sql/select_all_msg.sql'
 
     def test_show_all_msgs_not_exist_msg(self):
         expected = False
@@ -135,7 +134,6 @@ class test_manage_message_list():
         ShowAllArgs = namedtuple('ShowAllArgs', 'table_name')
         args = ShowAllArgs('test_table_for_manage')
 
-        constants.SELECT_ALL_MSG_SQL = 'sql/select_all_tables_manage.sql'
         actual = target.show_all_msgs(args)
 
         eq_(actual, expected)
@@ -152,3 +150,27 @@ class test_manage_message_list():
         actual = target.show_all_msgs(args)
 
         eq_(actual, expected)
+
+    def test_show_all_tables(self):
+        expected = 5
+
+        target = manage_message_list()
+
+        args = None
+        all_tables = target.show_all_tables(args)
+
+        actual = len(all_tables)
+
+        eq_(actual, expected)
+
+    @raises(OSError)
+    def test_show_all_tables_err(self):
+
+        target = manage_message_list()
+
+        try:
+            constants.SELECT_ALL_TABLES_SQL = 'not_exist_file'
+            args = None
+            target.show_all_tables(args)
+        finally:
+            constants.SELECT_ALL_TABLES_SQL = "sql/select_all_tables.sql"

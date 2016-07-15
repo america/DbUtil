@@ -57,18 +57,49 @@ class test_dbUtil():
 
         eq_(actual, expected)
 
+    def test_insert_message_rollback01(self):
+        expected = ([1], ['test_message'])
+
+        if dbUtil.insert_message(self.conn, 'test_table', 'test_message'):
+            self.conn.commit()
+        else:
+            self.conn.rollback()
+
+        if dbUtil.insert_message(self.conn, 'not_exist_table', 'rollback_message'):
+            self.conn.commit()
+        else:
+            self.conn.rollback()
+
+        actual = dbUtil.getAllMsgs(self.conn, 'test_table')
+
+        eq_(actual, expected)
+
+    def test_insert_message_rollback02(self):
+        expected = ()
+
+        dbUtil.insert_message(self.conn, 'test_table', 'test_message')
+
+        if dbUtil.insert_message(self.conn, 'not_exist_table', 'rollback_message'):
+            self.conn.commit()
+        else:
+            self.conn.rollback()
+
+        actual = dbUtil.getAllMsgs(self.conn, 'test_table')
+
+        eq_(actual, expected)
+
     def test_getAllMsgs(self):
 
-        expected = (1, 'test_message')
+        expected = ([1], ['test_message'])
         dbUtil.insert_message(self.conn, 'test_table', 'test_message')
-        (nos, msgs) = dbUtil.getAllMsgs(self.conn, 'test_table')
+        (no_list, msg_list) = dbUtil.getAllMsgs(self.conn, 'test_table')
 
-        actual = (nos[0], msgs[0])
+        actual = (no_list, msg_list)
         eq_(actual, expected)
 
     def test_getAllMsgs_not_exist_msg(self):
 
-        expected = []
+        expected = ()
         actual = dbUtil.getAllMsgs(self.conn, 'test_table')
 
         eq_(actual, expected)

@@ -125,7 +125,7 @@ class dbUtil:
             raise
         else:
             if not all_msgs_jsons:
-                return []
+                return ()
             else:
                 nos = [all_msgs_json['NO'] for all_msgs_json in all_msgs_jsons]
                 msgs = [all_msgs_json['CONTENTS'] for all_msgs_json in all_msgs_jsons]
@@ -147,9 +147,8 @@ class dbUtil:
                 statement = fin.read()
                 statement = statement.replace('table_name', table_name)
                 cursor.execute(statement, (message,))
-                connection.commit()
         except Exception:
-            raise
+            return False
         else:
             # get the ID from the last insert
             return cursor.lastrowid

@@ -208,8 +208,6 @@ class manage_message_list():
     @logging
     def yes_no_input(self, table_name, no=None, msg=None):
 
-        # msg = msg if msg else ''
-
         self.logger.info(constants.SEPARATE_LINE)
         self.logger.info("table_name: " + table_name)
         if no and msg:

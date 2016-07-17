@@ -197,13 +197,23 @@ class manage_message_list():
     def create_table(self, args):
 
         table_name = args.tablename
-        try:
-            if dbUtil.create_table(self.con, table_name):
+
+        if not self.exist_table(table_name):
+            try:
+                dbUtil.create_table(self.con, table_name)
                 self.logger.info(constants.SEPARATE_LINE)
                 self.logger.info(constants.TABLE_CREATED_MSG.replace('table_name', table_name))
                 self.logger.info(constants.SEPARATE_LINE)
-        except Exception:
-            raise
+
+                return True
+            except Exception:
+                raise
+        else:
+            self.logger.error(constants.SEPARATE_LINE)
+            self.logger.error(constants.TABLE_ALREADY_EXIST_MSG.replace('table_name', table_name))
+            self.logger.error(constants.SEPARATE_LINE)
+
+            return False
 
     @logging
     def delete_table(self, args):
@@ -213,12 +223,20 @@ class manage_message_list():
         if self.exist_table(table_name):
             try:
                 if self.yes_no_input(table_name):
-                    if dbUtil.delete_table(self.con, table_name):
-                        self.logger.info(constants.SEPARATE_LINE)
-                        self.logger.info(constants.TABLE_DELETED_MSG.replace('table_name', table_name))
-                        self.logger.info(constants.SEPARATE_LINE)
+                    dbUtil.delete_table(self.con, table_name)
+                    self.logger.info(constants.SEPARATE_LINE)
+                    self.logger.info(constants.TABLE_DELETED_MSG.replace('table_name', table_name))
+                    self.logger.info(constants.SEPARATE_LINE)
+
+                    return True
             except Exception:
                 raise
+        else:
+            self.logger.error(constants.SEPARATE_LINE)
+            self.logger.error(constants.TABLE_NOT_EXIST_MSG.replace('table_name', table_name))
+            self.logger.error(constants.SEPARATE_LINE)
+
+            return False
 
     @logging
     def yes_no_input(self, table_name, no=None, msg=None):

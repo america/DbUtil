@@ -288,7 +288,7 @@ class dbUtil:
             return True
 
         finally:
-            if not fin.closed:
+            if fin and not fin.closed:
                 fin.close()
 
     @classmethod

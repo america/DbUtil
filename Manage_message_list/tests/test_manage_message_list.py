@@ -202,10 +202,102 @@ class test_manage_message_list():
         args = InsertArgs('test_table_for_manage', 'test_message01')
         target.insert(args)
 
-        target.con.commit()
+        SearchArgs = namedtuple('SearchArgs', 'keyword')
+        args = SearchArgs('test_message01')
+        actual = target.search(args)
+
+        eq_(actual, expected)
+
+    def test_search_not_hit(self):
+        expected = ()
+
+        target = manage_message_list()
 
         SearchArgs = namedtuple('SearchArgs', 'keyword')
         args = SearchArgs('test_message01')
         actual = target.search(args)
 
         eq_(actual, expected)
+
+    def test_create_table(self):
+        expected = True
+
+        target = manage_message_list()
+
+        CreateTableArgs = namedtuple('CreateTableArgs', 'tablename')
+        args = CreateTableArgs('test_table_for_create')
+        actual = target.create_table(args)
+
+        eq_(actual, expected)
+
+    def test_create_table_already_exists(self):
+        expected = False
+
+        target = manage_message_list()
+
+        CreateTableArgs = namedtuple('CreateTableArgs', 'tablename')
+        args = CreateTableArgs('test_table_for_create')
+        target.create_table(args)
+        actual = target.create_table(args)
+
+        eq_(actual, expected)
+
+        dbUtil.delete_table(self.con, 'test_table_for_create')
+
+    @raises(OSError)
+    def test_create_table_err(self):
+
+        target = manage_message_list()
+
+        CreateTableArgs = namedtuple('CreateTableArgs', 'tablename')
+        args = CreateTableArgs('test_table_for_create')
+
+        try:
+            constants.CREATE_TABLE_DDL = 'not_exist_file'
+            target.create_table(args)
+        finally:
+            constants.CREATE_TABLE_DDL = 'sql/create_table.ddl'
+
+    def test_delete_table(self):
+        expected = True
+
+        target = manage_message_list()
+
+        dbUtil.create_table(self.con, 'test_table_for_delete')
+
+        DeleteTableArgs = namedtuple('DeleteTableArgs', 'tablename')
+        args = DeleteTableArgs('test_table_for_delete')
+        with patch('builtins.input', return_value='y'):
+            actual = target.delete_table(args)
+
+        eq_(actual, expected)
+
+    def test_delete_table_not_exist(self):
+        expected = False
+
+        target = manage_message_list()
+
+        DeleteTableArgs = namedtuple('DeleteTableArgs', 'tablename')
+        args = DeleteTableArgs('test_table_for_delete')
+        with patch('builtins.input', return_value='y'):
+            actual = target.delete_table(args)
+
+        eq_(actual, expected)
+
+    @raises(OSError)
+    def test_delete_table_err(self):
+
+        target = manage_message_list()
+
+        dbUtil.create_table(self.con, 'test_table_for_delete')
+
+        DeleteTableArgs = namedtuple('DeleteTableArgs', 'tablename')
+        args = DeleteTableArgs('test_table_for_delete')
+
+        try:
+            with patch('builtins.input', return_value='y'):
+                constants.DROP_TABLE_DDL = 'not_exist_file'
+                target.delete_table(args)
+        finally:
+            constants.DROP_TABLE_DDL = 'sql/drop_table.ddl'
+            dbUtil.delete_table(self.con, 'test_table_for_delete')

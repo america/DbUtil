@@ -20,15 +20,13 @@ from constants import constants
 
 class test_manage_message_list():
 
-    conn = None
-
     def setup(self):
-        self.conn = dbUtil.connect()
-        dbUtil.create_table(self.conn, 'test_table_for_manage')
+        self.con = dbUtil.connect()
+        dbUtil.create_table(self.con, 'test_table_for_manage')
 
     def teardown(self):
-        dbUtil.delete_table(self.conn, 'test_table_for_manage')
-        dbUtil.disConnect(self.conn)
+        dbUtil.delete_table(self.con, 'test_table_for_manage')
+        dbUtil.disConnect(self.con)
 
     def test_insert(self):
         expected = True
@@ -37,6 +35,7 @@ class test_manage_message_list():
 
         Args = namedtuple('Args', 'table_name message')
         args = Args('test_table_for_manage', 'test_message')
+
         actual = target.insert(args)
 
         eq_(actual, expected)
@@ -52,6 +51,22 @@ class test_manage_message_list():
 
         eq_(actual, expected)
 
+    def test_insert_rollback(self):
+        expected = ()
+
+        target = manage_message_list()
+
+        Args = namedtuple('Args', 'table_name message')
+        args = Args('test_table_for_manage', 'test_message')
+        target.insert(args)
+
+        target.con.rollback()
+
+        ShowAllArgs = namedtuple('ShowAllArgs', 'table_name')
+        args = ShowAllArgs('test_table_for_manage')
+        actual = target.show_all_msgs(args)
+        eq_(actual, expected)
+
     def test_delete_answer_yes(self):
         expected = True
 
@@ -60,6 +75,9 @@ class test_manage_message_list():
         InsertArgs = namedtuple('InsertArgs', 'table_name message')
         args = InsertArgs('test_table_for_manage', 'test_message')
         target.insert(args)
+
+        # self.con.commit()
+        target.con.commit()
 
         DeleteArgs = namedtuple('DeleteArgs', 'table_name no message')
         args = DeleteArgs('test_table_for_manage', [1], 'test_message')
@@ -84,7 +102,7 @@ class test_manage_message_list():
 
         eq_(actual, expected)
 
-    def test_delete_answer_not_exist_msg(self):
+    def test_delete_answer_yes_not_exist_msg(self):
         expected = False
 
         target = manage_message_list()
@@ -96,7 +114,7 @@ class test_manage_message_list():
 
         eq_(actual, expected)
 
-    def test_delete_answer_not_exist_table(self):
+    def test_delete_answer_yes_not_exist_table(self):
         expected = False
 
         target = manage_message_list()
@@ -127,7 +145,7 @@ class test_manage_message_list():
         eq_(actual, expected)
 
     def test_show_all_msgs_not_exist_msg(self):
-        expected = False
+        expected = ()
 
         target = manage_message_list()
 
@@ -139,7 +157,7 @@ class test_manage_message_list():
         eq_(actual, expected)
 
     def test_show_all_msgs_not_exist_table(self):
-        expected = False
+        expected = ()
 
         target = manage_message_list()
 
@@ -166,11 +184,28 @@ class test_manage_message_list():
     @raises(OSError)
     def test_show_all_tables_err(self):
 
-        target = manage_message_list()
-
         try:
+            target = manage_message_list()
+
             constants.SELECT_ALL_TABLES_SQL = 'not_exist_file'
             args = None
             target.show_all_tables(args)
         finally:
             constants.SELECT_ALL_TABLES_SQL = "sql/select_all_tables.sql"
+
+    def test_search(self):
+        expected = ([1], ['test_message01'], 'test_table_for_manage')
+
+        target = manage_message_list()
+
+        InsertArgs = namedtuple('InsertArgs', 'table_name message')
+        args = InsertArgs('test_table_for_manage', 'test_message01')
+        target.insert(args)
+
+        target.con.commit()
+
+        SearchArgs = namedtuple('SearchArgs', 'keyword')
+        args = SearchArgs('test_message01')
+        actual = target.search(args)
+
+        eq_(actual, expected)

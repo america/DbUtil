@@ -17,8 +17,12 @@ from constants import constants
 from util.deco import logging
 import pymysql
 
+# con = dbUtil.connect()
+
 
 class manage_message_list():
+
+    con = None
 
     @logging
     def __init__(self, logger=None):
@@ -102,7 +106,6 @@ class manage_message_list():
         if self.exist_table(table_name):
 
             try:
-
                 results = dbUtil.getAllMsgs(self.con, table_name)
                 if results:
                     (no_list, msg_list) = dbUtil.getAllMsgs(self.con, table_name)
@@ -125,13 +128,13 @@ class manage_message_list():
                         index += 1
 
                 else:
-                    return False
+                    return ()
             except Exception:
                 raise
             else:
                 return (no_list, msg_list)
         else:
-            return False
+            return ()
 
     @logging
     def show_all_tables(self, args):
@@ -158,27 +161,39 @@ class manage_message_list():
         keyword = args.keyword
 
         try:
-            result_list = dbUtil.search_msg_by_kword(self.con, keyword)
+            result_lists = dbUtil.search_msg_by_kword(self.con, keyword)
+            if result_lists:
 
-            # logger for keyword list
-            self.list_logger = self.make_filehandler_logger(keyword, 'keyword_list')
+                # logger for keyword list file
+                self.list_logger = self.make_filehandler_logger(keyword, 'keyword_list')
 
-            for result_tuple in result_list:
-                for json in result_tuple.result_json:
-                    self.logger.info(constants.SEPARATE_LINE)
-                    self.list_logger.info(constants.SEPARATE_LINE)
-                    self.logger.info("table_name: " + result_tuple.table_name)
-                    self.list_logger.info("table_name: " + result_tuple.table_name)
-                    self.logger.info("no: " + str(json['NO']))
-                    self.list_logger.info("no: " + str(json['NO']))
-                    self.logger.info("message " + json['CONTENTS'])
-                    self.list_logger.info("message " + json['CONTENTS'])
-                    self.logger.info(constants.SEPARATE_LINE)
-                    self.list_logger.info(constants.SEPARATE_LINE)
+                for nt in result_lists:
+                    no_list = nt.nos
+                    msg_list = nt.msgs
+                    table_name = nt.table_name
+
+                    index = 0
+                    while index < len(no_list):
+                        self.logger.info(constants.SEPARATE_LINE)
+                        self.logger.info("table_name: " + table_name)
+                        self.logger.info("no: " + str(no_list[index]))
+                        self.logger.info("msg: " + msg_list[index])
+                        self.logger.info(constants.SEPARATE_LINE)
+
+                        self.list_logger.info(constants.SEPARATE_LINE)
+                        self.list_logger.info("table_name: " + table_name)
+                        self.list_logger.info("no: " + str(no_list[index]))
+                        self.list_logger.info("msg: " + msg_list[index])
+                        self.list_logger.info(constants.SEPARATE_LINE)
+
+                        index += 1
+            else:
+                return ()
         except Exception:
             raise
+        else:
+            return (no_list, msg_list, table_name)
 
-    @logging
     def create_table(self, args):
 
         table_name = args.tablename

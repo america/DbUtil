@@ -78,6 +78,8 @@ class dbUtil:
         finally:
             if fin and not fin.closed:
                 fin.close()
+            else:
+                pass
 
     @classmethod
     @logging
@@ -108,6 +110,8 @@ class dbUtil:
         finally:
             if fin and not fin.closed:
                 fin.close()
+            else:
+                pass
 
     @classmethod
     @logging
@@ -133,6 +137,8 @@ class dbUtil:
         finally:
             if fin and not fin.closed:
                 fin.close()
+            else:
+                pass
 
     @classmethod
     @logging
@@ -156,6 +162,8 @@ class dbUtil:
         finally:
             if fin and not fin.closed:
                 fin.close()
+            else:
+                pass
 
     @classmethod
     @logging
@@ -182,6 +190,8 @@ class dbUtil:
         finally:
             if fin and not fin.closed:
                 fin.close()
+            else:
+                pass
 
     @classmethod
     @logging
@@ -208,6 +218,8 @@ class dbUtil:
         finally:
             if fin and not fin.closed:
                 fin.close()
+            else:
+                pass
 
     @classmethod
     @logging
@@ -241,7 +253,13 @@ class dbUtil:
         except Exception:
             raise
 
-        return msg_list
+        else:
+            return msg_list
+        finally:
+            if fin and not fin.closed:
+                fin.close()
+            else:
+                pass
 
     @classmethod
     @logging
@@ -266,6 +284,8 @@ class dbUtil:
         finally:
             if fin and not fin.closed:
                 fin.close()
+            else:
+                pass
 
     @classmethod
     @logging
@@ -290,6 +310,8 @@ class dbUtil:
         finally:
             if fin and not fin.closed:
                 fin.close()
+            else:
+                pass
 
     @classmethod
     @logging
@@ -319,6 +341,8 @@ class dbUtil:
         finally:
             if fin and not fin.closed:
                 fin.close()
+            else:
+                pass
 
     @classmethod
     @logging

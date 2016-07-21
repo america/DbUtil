@@ -62,11 +62,9 @@ class test_dbUtil():
         expected = ([1], ['test_message'])
 
         dbUtil.insert_message(self.conn, 'test_table', 'test_message')
-
         self.conn.commit()
 
         dbUtil.insert_message(self.conn, 'not_exist_table', 'rollback_message')
-
         self.conn.rollback()
 
         actual = dbUtil.getAllMsgs(self.conn, 'test_table')
@@ -78,10 +76,8 @@ class test_dbUtil():
 
         dbUtil.insert_message(self.conn, 'test_table', 'test_message')
 
-        if dbUtil.insert_message(self.conn, 'not_exist_table', 'rollback_message'):
-            self.conn.commit()
-        else:
-            self.conn.rollback()
+        dbUtil.insert_message(self.conn, 'not_exist_table', 'rollback_message')
+        self.conn.rollback()
 
         actual = dbUtil.getAllMsgs(self.conn, 'test_table')
 

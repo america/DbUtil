@@ -56,7 +56,7 @@ class dbUtil:
 
     @classmethod
     @logging
-    def getTwInfo(cls, connection):
+    def getTwInfo(cls, connection, no):
 
         fin = None
 
@@ -65,18 +65,25 @@ class dbUtil:
                 sql_file = path.dirname(path.abspath(__file__)) + sep + constants.SELECT_USER_INFO_SQL
                 fin = open(sql_file)
                 sql = fin.read()
-                cursor.execute(sql)
+                cursor.execute(sql, (no,))
                 twInfo = cursor.fetchone()
+                print(twInfo)
         except Exception:
             raise
 
         else:
             if twInfo:
-                return (True, twInfo)
+                user = twInfo['user']
+                con_key = twInfo['consumer_key']
+                con_secret = twInfo['consumer_secret']
+                token = twInfo['access_token']
+                token_secret = twInfo['access_token_secret']
+
+                return (True, [no, user, con_key, con_secret, token, token_secret])
             else:
                 return (False, [])
         finally:
-            if fin and not fin.closed:
+            if not fin.closed:
                 fin.close()
             else:
                 pass
@@ -296,6 +303,58 @@ class dbUtil:
         try:
             with connection.cursor() as cursor:
                 ddl_file = path.dirname(path.abspath(__file__)) + sep + constants.DROP_TABLE_DDL
+                fin = open(ddl_file)
+                ddl = fin.read()
+                ddl = ddl.replace('table_name', table_name)
+                cursor.execute(ddl)
+                connection.commit()
+        except Exception:
+            raise
+
+        else:
+            return True
+
+        finally:
+            if fin and not fin.closed:
+                fin.close()
+            else:
+                pass
+
+    @classmethod
+    @logging
+    def create_database(cls, connection, table_name):
+
+        fin = None
+
+        try:
+            with connection.cursor() as cursor:
+                ddl_file = path.dirname(path.abspath(__file__)) + sep + constants.CREATE_DATABASE_DDL
+                fin = open(ddl_file)
+                ddl = fin.read()
+                ddl = ddl.replace('table_name', table_name)
+                cursor.execute(ddl)
+                connection.commit()
+        except Exception:
+            raise
+
+        else:
+            return True
+
+        finally:
+            if fin and not fin.closed:
+                fin.close()
+            else:
+                pass
+
+    @classmethod
+    @logging
+    def drop_database(cls, connection, table_name):
+
+        fin = None
+
+        try:
+            with connection.cursor() as cursor:
+                ddl_file = path.dirname(path.abspath(__file__)) + sep + constants.DROP_DATABASE_DDL
                 fin = open(ddl_file)
                 ddl = fin.read()
                 ddl = ddl.replace('table_name', table_name)

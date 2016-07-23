@@ -7,4 +7,4 @@ access_token_secret
 FROM
 twitter_users
 WHERE
-No = 0
+No = (%s)

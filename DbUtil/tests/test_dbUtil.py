@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 ^*-
 
+from os import path
+from os.path import sep
+from os.path import pardir
 from nose.tools import eq_, raises, ok_
 import pymysql
 
@@ -15,10 +18,13 @@ class test_dbUtil():
 
     def setup(self):
         self.conn = dbUtil.connect()
+        dbUtil.create_database(self.conn, 'test_database')
+        self.conn.select_db('test_database')
         dbUtil.create_table(self.conn, 'test_table')
 
     def teardown(self):
         dbUtil.delete_table(self.conn, 'test_table')
+        dbUtil.drop_database(self.conn, 'test_database')
         dbUtil.disConnect(self.conn)
 
     def test_connect(self):
@@ -28,15 +34,52 @@ class test_dbUtil():
         dbUtil.disConnect(_conn)
 
     def test_getTwInfo(self):
-        expected = True
-        (result, twInfo) = dbUtil.getTwInfo(self.conn)
-        actual = result
+        expected = (True, [1, 'user', 'key', 'secret', 'access_token', 'access_token_secret'])
+        try:
+            with self.conn.cursor() as cursor:
+                ddl_file = path.dirname(path.abspath(__file__)) + sep + pardir + sep + constants.CREATE_TW_USER_TABLE_DDL
+                fin = open(ddl_file)
+                ddl = fin.read()
+                cursor.execute(ddl)
+
+                cursor.execute(
+                    '''INSERT INTO twitter_users
+                       (
+                       user,
+                       consumer_key,
+                       consumer_secret,
+                       access_token,
+                       access_token_secret
+                       )
+                       VALUES(
+                       'user',
+                       'key',
+                       'secret',
+                       'access_token',
+                       'access_token_secret')''')
+                self.conn.commit()
+
+        finally:
+            if not fin.closed:
+                fin.close()
+
+        actual = dbUtil.getTwInfo(self.conn, 1)
         eq_(expected, actual)
 
     def test_getTwInfo_not_exist(self):
         expected = False
+        try:
+            with self.conn.cursor() as cursor:
+                ddl_file = path.dirname(path.abspath(__file__)) + sep + pardir + sep + constants.CREATE_TW_USER_TABLE_DDL
+                fin = open(ddl_file)
+                ddl = fin.read()
+                cursor.execute(ddl)
+        finally:
+            if not fin.closed:
+                fin.close()
+
         constants.SELECT_USER_INFO_SQL = 'sql/selectUserInfo_not_exist.sql'
-        (result, twInfo) = dbUtil.getTwInfo(self.conn)
+        (result, twInfo) = dbUtil.getTwInfo(self.conn, 99)
         actual = result
         eq_(expected, actual)
 
@@ -170,7 +213,7 @@ class test_dbUtil():
 
     def test_get_all_tables(self):
 
-        expected = ['crazy', 'precepts', 'python_tips', 'songs', 'test_table']
+        expected = ['test_table']
         actual = dbUtil.get_all_tables(self.conn)
 
         eq_(actual, expected)

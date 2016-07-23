@@ -17,7 +17,10 @@ DELETE_MSG_SQL = "sql/delete_msg.sql"
 SELECT_ALL_TABLES_SQL = "sql/select_all_tables.sql"
 SELECT_MSG_BY_KEWORD_SQL = "sql/select_msg_by_keyword.sql"
 CREATE_TABLE_DDL = "sql/create_table.ddl"
+CREATE_TW_USER_TABLE_DDL = "sql/create_tw_user_table.ddl"
 DROP_TABLE_DDL = "sql/drop_table.ddl"
+CREATE_DATABASE_DDL = "sql/create_database.ddl"
+DROP_DATABASE_DDL = "sql/drop_database.ddl"
 
 # message
 SEPARATE_LINE = "-" * 80

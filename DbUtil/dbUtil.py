@@ -83,7 +83,7 @@ class dbUtil:
             else:
                 return (False, [])
         finally:
-            if not fin.closed:
+            if fin and not fin.closed:
                 fin.close()
             else:
                 pass
@@ -132,7 +132,7 @@ class dbUtil:
                 sql = sql.replace('table_name', table_name)
                 cursor.execute(sql)
                 all_msgs_jsons = cursor.fetchall()
-        except BaseException:
+        except Exception:
             raise
         else:
             if not all_msgs_jsons:

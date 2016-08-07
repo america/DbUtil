@@ -1,9 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+from os.path import dirname
+from os.path import  sep
+from os import pardir
+from os import path
+
+dbutil_path = dirname(path.abspath(__file__)) + sep + pardir + sep + 'DbUtil'
+sys.path.append(dbutil_path)
 from dbUtil import dbUtil
 import tweepy
-from deco import logging
+from util.deco import logging
 
 
 class twpy:
@@ -16,15 +24,15 @@ class twpy:
     def main(self):
         self.con = dbUtil.connect()
 
-        twitterInfo = dbUtil.getTwInfo(self.con)
+        (reslut, twitterInfo) = dbUtil.getTwInfo(self.con, 0)
 
-        CONSUMER_KEY = twitterInfo["consumer_key"]
-        CONSUMER_SECRET = twitterInfo["consumer_secret"]
+        CONSUMER_KEY = twitterInfo[2]
+        CONSUMER_SECRET = twitterInfo[3]
 
         auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 
-        ACCESS_TOKEN = twitterInfo["access_token"]
-        ACCESS_SECRET = twitterInfo["access_token_secret"]
+        ACCESS_TOKEN = twitterInfo[4]
+        ACCESS_SECRET = twitterInfo[5]
 
         auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
 

@@ -45,6 +45,7 @@ class manage_message_list():
             try:
                 no = dbUtil.insert_message(self.con, table_name, message)
                 if no:
+                    self.con.commit()
 
                     self.logger.info(constants.SEPARATE_LINE)
                     self.logger.info("'" + message + "'")

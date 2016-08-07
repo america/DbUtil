@@ -3,22 +3,25 @@
 
 import traceback
 import twpy
+
 from dbUtil import dbUtil
 from random import choice
-from logging import getLogger, StreamHandler, FileHandler, Formatter, DEBUG
+from logging import getLogger, StreamHandler, FileHandler, Formatter, DEBUG, INFO
 from tweepy import TweepError
-import constants
-from deco import logging
+from constants import constants
+from util.deco import logging
 
 
 class tw_bot():
 
+    file_logger = None
+
     @logging
-    def __init__(self, logger=None, list_logger=None):
+    def __init__(self):
         self.api = twpy.api
         # logger for log
-        self.logger = logger if logger else getLogger(__file__)
-        self.logger.setLevel(DEBUG)
+        self.file_logger = self.file_logger if self.file_logger else getLogger(__file__)
+        self.file_logger.setLevel(DEBUG)
 
         # format for log
         formatter = Formatter(fmt='%(asctime)s %(levelname)s  %(message)s',
@@ -30,7 +33,7 @@ class tw_bot():
         self.log_handler.setFormatter(formatter)
 
         # set handler for log
-        self.logger.addHandler(self.log_handler)
+        self.file_logger.addHandler(self.log_handler)
 
         try:
             self.con = dbUtil.connect()
@@ -40,26 +43,43 @@ class tw_bot():
     @logging
     def random_tweet(self):
 
-        (table_name, random_msgs) = dbUtil.getRandomMsgs(self.con)
+        (table_name, no_list, msg_list) = dbUtil.getRandomMsgs(self.con)
 
         count = 0
 
         while count < constants.TWEET_MAX_LOOP_CNT:
 
-            msg_json = choice(random_msgs)
-            no = msg_json['NO']
-            msg = msg_json['CONTENTS']
-            msg_bytes = msg.encode('utf-8')
-            msg = msg_bytes.decode('utf-8')
+            msg = choice(msg_list)
+            index = msg_list.index(msg)
+            no = no_list[index]
             msg = msg.strip()
 
             try:
                 (result, status) = self.tweet(table_name, no, msg)
-            except (TweepError,  UnicodeEncodeError):
+
+                if result:
+                    break
+
+            except Exception:
                 count += 1
                 continue
+            else:
+                count += 1
 
-            if result:
+        dbUtil.disConnect(self.con)
+
+    @logging
+    def tweet(self, table_name, no, msg):
+
+        stdlogger = getLogger('std')
+        stdlogger.setLevel(INFO)
+        stdlogger.addHandler(StreamHandler())
+
+        result = False
+        try:
+            if constants.TWEET_FLAG:
+                # tweet
+                status = self.api.update_status(status=msg)
                 if status:
                     id = status.id  # ID
                     name = status.author.name  # name
@@ -67,30 +87,20 @@ class tw_bot():
                     text = status.text  # a content you tweet
                     dt = status.created_at  # date at tweet
 
-                    self.logger.info("id: " + str(id))
-                    self.logger.info("name: " + name)
-                    self.logger.info("screen_name: " + screen_name)
-                    self.logger.info("text: " + text)
-                    self.logger.info("date: " + str(dt))
-                    self.logger.info("### Tweet OK ###")
+                    self.file_logger.info("id: " + str(id))
+                    self.file_logger.info("name: " + name)
+                    self.file_logger.info("screen_name: " + screen_name)
+                    self.file_logger.info("text: " + text)
+                    self.file_logger.info("date: " + str(dt))
+                    self.file_logger.info("### Tweet OK ###")
 
-                break
-
-            count += 1
-
-        dbUtil.disConnect(self.con)
-
-    @logging
-    def tweet(self, table_name, no, msg):
-
-        try:
-            if constants.TWEET_FLAG:
-                # tweet
-                status = self.api.update_status(status=msg)
+                    stdlogger.info("id: " + str(id))
+                    stdlogger.info("name: " + name)
+                    stdlogger.info("screen_name: " + screen_name)
+                    stdlogger.info("text: " + text)
+                    stdlogger.info("date: " + str(dt))
+                    stdlogger.info("### Tweet OK ###")
             else:
-                stdlogger = getLogger('std')
-                stdlogger.setLevel(DEBUG)
-                stdlogger.addHandler(StreamHandler())
 
                 stdlogger.info(constants.SEPARATE_LINE)
                 stdlogger.info('table_name: ' + table_name)
@@ -99,11 +109,12 @@ class tw_bot():
 
             result = True
         except (TweepError, UnicodeEncodeError):
-            self.logger.error(traceback.format_exc())
-            self.logger.debug("msg: " + msg)
+            self.file_logger.error(traceback.format_exc())
+            self.file_logger.error("msg: " + msg)
             raise
 
-        return (result, status)
+        else:
+            return (result, status)
 
 if __name__ == '__main__':
 

@@ -5,7 +5,7 @@
 TWEET_MAX_LOOP_CNT = 20
 
 # the flag of tweet or stdout
-TWEET_FLAG = False
+TWEET_FLAG = True
 
 # file name
 DB_INFO_INI = "db_info.ini"

@@ -67,7 +67,6 @@ class dbUtil:
                 sql = fin.read()
                 cursor.execute(sql, (no,))
                 twInfo = cursor.fetchone()
-                print(twInfo)
         except Exception:
             raise
 

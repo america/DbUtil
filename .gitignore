@@ -5,3 +5,8 @@ backup
 .git
 .coverage
 nosetests.xml
+*.pyc
+/build
+/dist
+/.tox
+/dbutil.egg-info

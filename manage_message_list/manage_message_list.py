@@ -11,8 +11,6 @@ from dbutil.constants import constants
 from dbutil.util.deco import logging
 import pymysql
 
-# con = dbUtil.connect()
-
 
 class manage_message_list():
 

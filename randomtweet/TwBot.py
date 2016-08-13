@@ -3,12 +3,12 @@
 
 import traceback
 import twpy
-# import re
 
 from dbUtil import dbUtil
 from tweepy.streaming import StreamListener
 from tweepy import Stream
 from datetime import timedelta
+from logging import getLogger, StreamHandler, Formatter, DEBUG
 
 
 class TwListener(StreamListener):
@@ -16,18 +16,24 @@ class TwListener(StreamListener):
 
     api = twpy.api
 
-    def __init__(self):
+    def __init__(self, logger=None):
+
+        self.logger = logger if logger else getLogger(__file__)
+        self.logger.setLevel(DEBUG)
+        self.handler = StreamHandler()
+        self.handler.setFormatter(Formatter(fmt='%(levelname)s %(message)s'))
+        self.logger.addHandler(self.handler)
         self.connection = dbUtil.connect()
 
     def on_status(self, status):
-        print("sid:", status.id)
-        print("uid:", status.user.id)
-        print("lang:", status.lang)
-        print("screen_name:", status.user.screen_name)
-        print("name:", status.user.name)
-        print("tweet:", status.text)
+        self.logger.debug("sid:", status.id)
+        self.logger.debug("uid:", status.user.id)
+        self.logger.debug("lang:", status.lang)
+        self.logger.debug("screen_name:", status.user.screen_name)
+        self.logger.debug("name:", status.user.name)
+        self.logger.debugi("tweet:", status.text)
         status.created_at += timedelta(hours=9)
-        print("time:", status.created_at, "\n")
+        self.logger.debug("time:", status.created_at, "\n")
 
         created_time = status.created_at
         created_time.strftime('%Y-%m-%d %H:%M:%S')
@@ -44,7 +50,7 @@ class TwListener(StreamListener):
         if result:
             self.connection.commit()
         else:
-            print('Insert Error!!!')
+            self.logger.error('Insert Error!!!')
 
     def on_error(self, status):
         print(status)

@@ -5,7 +5,7 @@ from os import path
 from os.path import sep
 import pymysql
 from random import choice
-from logging import getLogger, StreamHandler, Formatter, INFO
+from logging import getLogger, StreamHandler, Formatter, DEBUG
 
 from dbutil.constants import constants
 from collections import namedtuple
@@ -13,7 +13,7 @@ from dbutil.util.deco import logging
 from pit import Pit
 
 logger = getLogger(__file__)
-logger.setLevel(INFO)
+logger.setLevel(DEBUG)
 handler = StreamHandler()
 handler.setFormatter(Formatter(fmt='%(levelname)s %(message)s'))
 logger.addHandler(handler)

@@ -51,6 +51,7 @@ class TwListener(StreamListener):
                                            status.text,
                                            0,
                                            status.created_at)
+
         if result:
             self.connection.commit()
         else:

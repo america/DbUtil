@@ -53,7 +53,7 @@ class TwListener(StreamListener):
             self.logger.error('Insert Error!!!')
 
     def on_error(self, status):
-        print(status)
+        self.logger.error(status)
 
 if __name__ == '__main__':
     try:

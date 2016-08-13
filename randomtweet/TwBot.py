@@ -32,6 +32,7 @@ class TwListener(StreamListener):
         self.logger.debug("screen_name:", status.user.screen_name)
         self.logger.debug("name:", status.user.name)
         self.logger.debugi("tweet:", status.text)
+
         status.created_at += timedelta(hours=9)
         self.logger.debug("time:", status.created_at, "\n")
 

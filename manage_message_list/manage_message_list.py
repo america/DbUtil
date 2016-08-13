@@ -343,7 +343,7 @@ if __name__ == '__main__':
             manager.logger.error(message)
             manager.logger.error(constants.SEPARATE_LINE)
 
-    except Exception as ex:
+    except Exception:
         traceback.print_exc()
     finally:
         dbUtil.disConnect(manager.con)

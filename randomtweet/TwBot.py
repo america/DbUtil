@@ -4,7 +4,7 @@
 import traceback
 import twpy
 
-from dbUtil import dbUtil
+from dbutil.dbUtil import dbUtil
 from tweepy.streaming import StreamListener
 from tweepy import Stream
 from datetime import timedelta
@@ -33,10 +33,10 @@ class TwListener(StreamListener):
         self.logger.debug("lang:", status.lang)
         self.logger.debug("screen_name:", status.user.screen_name)
         self.logger.debug("name:", status.user.name)
-        self.logger.debugi("tweet:", status.text)
+        self.logger.debug("tweet:", status.text)
 
         status.created_at += timedelta(hours=9)
-        self.logger.debug("time:", status.created_at, "\n")
+        self.logger.debug("time:", status.created_at)
         self.logger.debug(constants.SEPARATE_LINE)
 
         created_time = status.created_at

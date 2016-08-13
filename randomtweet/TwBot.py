@@ -9,6 +9,7 @@ from tweepy.streaming import StreamListener
 from tweepy import Stream
 from datetime import timedelta
 from logging import getLogger, StreamHandler, Formatter, DEBUG
+from dbutil.constants import constants
 
 
 class TwListener(StreamListener):
@@ -26,6 +27,7 @@ class TwListener(StreamListener):
         self.connection = dbUtil.connect()
 
     def on_status(self, status):
+        self.logger.debug(constants.SEPARATE_LINE)
         self.logger.debug("sid:", status.id)
         self.logger.debug("uid:", status.user.id)
         self.logger.debug("lang:", status.lang)
@@ -35,6 +37,7 @@ class TwListener(StreamListener):
 
         status.created_at += timedelta(hours=9)
         self.logger.debug("time:", status.created_at, "\n")
+        self.logger.debug(constants.SEPARATE_LINE)
 
         created_time = status.created_at
         created_time.strftime('%Y-%m-%d %H:%M:%S')

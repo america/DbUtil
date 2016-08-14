@@ -5,7 +5,7 @@ import sys
 
 from dbutil.dbUtil import dbUtil
 import traceback
-from logging import getLogger, StreamHandler, Formatter, FileHandler, DEBUG
+from logging import getLogger, StreamHandler, Formatter, FileHandler, INFO
 import argparse
 from dbutil.constants import constants
 from dbutil.util.deco import logging
@@ -20,7 +20,7 @@ class manage_message_list():
     def __init__(self, logger=None):
         # logger for stdlog
         self.logger = logger if logger else getLogger("log")
-        self.logger.setLevel(DEBUG)
+        self.logger.setLevel(INFO)
         self.handler = StreamHandler()
         self.handler.setFormatter(Formatter(fmt='%(levelname)s %(message)s'))
         self.logger.addHandler(self.handler)

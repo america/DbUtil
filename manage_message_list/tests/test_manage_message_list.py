@@ -58,7 +58,7 @@ class test_manage_message_list():
         ShowAllArgs = namedtuple('ShowAllArgs', 'table_name')
         args = ShowAllArgs('test_table_for_manage')
         actual = target.show_all_msgs(args)
-        # eq_(actual, expected)
+        eq_(actual, expected)
 
     def test_delete_answer_yes(self):
         expected = True
@@ -95,7 +95,7 @@ class test_manage_message_list():
 
         eq_(actual, expected)
 
-    def test_delete_answer_yes_not_exist_msg(self):
+    def test_delete_answer_no_not_exist_msg(self):
         expected = False
 
         target = manage_message_list()
@@ -220,6 +220,8 @@ class test_manage_message_list():
         CreateTableArgs = namedtuple('CreateTableArgs', 'tablename')
         args = CreateTableArgs('test_table_for_create')
         actual = target.create_table(args)
+
+        # target.con.commit()
 
         eq_(actual, expected)
 

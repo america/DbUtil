@@ -5,7 +5,7 @@ from os import path
 from os.path import sep
 import pymysql
 from random import choice
-from logging import getLogger, StreamHandler, Formatter, DEBUG
+from logging import getLogger, StreamHandler, Formatter, INFO
 
 from dbutil.constants import constants
 from collections import namedtuple
@@ -13,7 +13,7 @@ from dbutil.util.deco import logging
 from pit import Pit
 
 logger = getLogger(__file__)
-logger.setLevel(DEBUG)
+logger.setLevel(INFO)
 handler = StreamHandler()
 handler.setFormatter(Formatter(fmt='%(levelname)s %(message)s'))
 logger.addHandler(handler)
@@ -275,7 +275,9 @@ class dbUtil:
 
         try:
             with connection.cursor() as cursor:
-                ddl_file = path.dirname(path.abspath(__file__)) + sep + constants.CREATE_TABLE_DDL
+                ddl_file = path.dirname(path.abspath(__file__)) + \
+                    sep + constants.CREATE_TABLE_DDL
+                # connection.begin()
                 fin = open(ddl_file)
                 ddl = fin.read()
                 ddl = ddl.replace('table_name', table_name)

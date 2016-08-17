@@ -10,7 +10,7 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(
-    name='dbutil',
+    name='manage_message_list',
     version='0.0.1',
     url='https://github.com/america/Python',
     author='Takashi Haga',

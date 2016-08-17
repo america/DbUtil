@@ -202,6 +202,7 @@ class test_manage_message_list():
 
         self.con.commit()
 
+    '''
     def test_11_show_all_tables(self):
         self.con.begin()
         expected = 1
@@ -216,6 +217,7 @@ class test_manage_message_list():
         eq_(actual, expected)
 
         self.con.commit()
+    '''
 
     @raises(OSError)
     def test_12_show_all_tables_err(self):
@@ -263,6 +265,7 @@ class test_manage_message_list():
 
     '''
 
+    '''
     def test_15_create_table(self):
         self.con.begin()
         expected = True
@@ -275,6 +278,7 @@ class test_manage_message_list():
 
         # self.con.begin()
         eq_(actual, expected)
+    '''
 
     def test_16_create_table_already_exists(self):
         self.con_for_create.begin()
@@ -291,6 +295,7 @@ class test_manage_message_list():
 
         dbUtil.delete_table(self.con, 'test_table_for_create')
 
+    '''
     @raises(FileNotFoundError)
     def test_17_create_table_err(self):
 
@@ -306,7 +311,9 @@ class test_manage_message_list():
             print(e)
         finally:
             constants.CREATE_TABLE_DDL = 'sql/create_table.ddl'
+    '''
 
+    '''
     def test_18_delete_table(self):
         # self.con.begin()
         expected = True
@@ -321,7 +328,9 @@ class test_manage_message_list():
             actual = target.delete_table(args)
 
         eq_(actual, expected)
+    '''
 
+    '''
     def test_19_delete_table_not_exist(self):
         self.con.begin()
 
@@ -335,7 +344,9 @@ class test_manage_message_list():
             actual = target.delete_table(args)
 
         eq_(actual, expected)
+    '''
 
+    '''
     @raises(FileNotFoundError)
     def test_20_delete_table_err(self):
 
@@ -354,3 +365,4 @@ class test_manage_message_list():
         finally:
             constants.DROP_TABLE_DDL = 'sql/drop_table.ddl'
             # dbUtil.delete_table(self.con, 'test_table_for_delete')
+    '''

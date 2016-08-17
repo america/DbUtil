@@ -41,7 +41,8 @@ class manage_message_list():
                 if no:
                     self.logger.info(constants.SEPARATE_LINE)
                     self.logger.info("'" + message + "'")
-                    self.logger.info(constants.INSERT_MSG + table_name + " at No: " + str(no))
+                    self.logger.info(constants.INSERT_MSG + table_name +
+                                     " at No: " + str(no))
                     self.logger.info(constants.SEPARATE_LINE)
 
             except Exception:

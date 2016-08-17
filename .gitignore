@@ -4,7 +4,6 @@ __pycache__
 backup
 .git
 .coverage
-nosetests.xml
 *.pyc
 /build
 /dist

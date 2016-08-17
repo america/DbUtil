@@ -1,7 +1,7 @@
 coverage==4.1
 dbutil==0.0.1
 decorator==4.0.10
-flake8==3.0.3
+flake8
 ipykernel==4.3.1
 ipython==5.0.0
 ipython-genutils==0.1.0

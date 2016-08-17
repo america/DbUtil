@@ -5,7 +5,8 @@ import sys
 
 from dbutil.dbUtil import dbUtil
 import traceback
-from logging import getLogger, StreamHandler, Formatter, FileHandler, INFO
+from logging import getLogger, StreamHandler, Formatter, FileHandler, INFO, \
+     DEBUG
 import argparse
 from dbutil.constants import constants
 from dbutil.util.deco import logging
@@ -30,6 +31,7 @@ class manage_message_list():
     @logging
     def insert(self, args):
 
+        self.con.begin()
         table_name = args.table_name
         message = args.message
 
@@ -37,22 +39,25 @@ class manage_message_list():
             try:
                 no = dbUtil.insert_message(self.con, table_name, message)
                 if no:
-                    self.con.commit()
-
                     self.logger.info(constants.SEPARATE_LINE)
                     self.logger.info("'" + message + "'")
                     self.logger.info(constants.INSERT_MSG + table_name + " at No: " + str(no))
                     self.logger.info(constants.SEPARATE_LINE)
 
             except Exception:
+                self.con.commit()
                 raise
             else:
+                self.con.commit()
                 return True
         else:
+            self.con.commit()
             return False
 
     @logging
     def delete(self, args):
+
+        self.con.begin()
 
         table_name = args.table_name
         no_list = args.no
@@ -75,6 +80,8 @@ class manage_message_list():
                             self.logger.info(constants.DELETE_MSG + table_name)
                             self.logger.info(constants.SEPARATE_LINE)
 
+                            self.con.commit()
+
                             return True
                         else:
                             return False
@@ -83,6 +90,8 @@ class manage_message_list():
                         self.logger.info(constants.SEPARATE_LINE)
                         self.logger.info(constants.NOT_EXIST_MSG)
                         self.logger.info(constants.SEPARATE_LINE)
+
+                        self.con.commit()
 
                         return False
                 except Exception:
@@ -93,8 +102,11 @@ class manage_message_list():
 
     @logging
     def show_all_msgs(self, args):
-
+        self.con.begin()
         table_name = args.table_name
+
+        no_list = None
+        msg_list = None
 
         if self.exist_table(table_name):
 
@@ -120,13 +132,14 @@ class manage_message_list():
 
                         index += 1
 
-                else:
-                    return ()
             except Exception:
+                self.con.rollback()
                 raise
             else:
+                self.con.commit()
                 return (no_list, msg_list)
         else:
+            self.con.commit()
             return ()
 
     @logging
@@ -152,6 +165,10 @@ class manage_message_list():
     def search(self, args):
 
         keyword = args.keyword
+
+        no_list = None
+        msg_list = None
+        table_name = None
 
         try:
             result_lists = dbUtil.search_msg_by_kword(self.con, keyword)
@@ -180,8 +197,8 @@ class manage_message_list():
                         self.list_logger.info(constants.SEPARATE_LINE)
 
                         index += 1
-            else:
-                return ()
+            # else:
+            #    return ()
         except Exception:
             raise
         else:
@@ -189,6 +206,7 @@ class manage_message_list():
 
     def create_table(self, args):
 
+        self.con.begin()
         table_name = args.tablename
 
         if not self.exist_table(table_name):
@@ -198,19 +216,22 @@ class manage_message_list():
                 self.logger.info(constants.TABLE_CREATED_MSG.replace('table_name', table_name))
                 self.logger.info(constants.SEPARATE_LINE)
 
-                return True
             except Exception:
                 raise
+            else:
+                return True
         else:
             self.logger.error(constants.SEPARATE_LINE)
             self.logger.error(constants.TABLE_ALREADY_EXIST_MSG.replace('table_name', table_name))
             self.logger.error(constants.SEPARATE_LINE)
 
+            self.con.commit()
             return False
 
     @logging
     def delete_table(self, args):
 
+        self.con.begin()
         table_name = args.tablename
 
         if self.exist_table(table_name):
@@ -221,9 +242,10 @@ class manage_message_list():
                     self.logger.info(constants.TABLE_DELETED_MSG.replace('table_name', table_name))
                     self.logger.info(constants.SEPARATE_LINE)
 
-                    return True
             except Exception:
                 raise
+            else:
+                return True
         else:
             self.logger.error(constants.SEPARATE_LINE)
             self.logger.error(constants.TABLE_NOT_EXIST_MSG.replace('table_name', table_name))

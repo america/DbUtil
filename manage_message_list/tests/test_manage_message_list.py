@@ -9,7 +9,7 @@ from manage_message_list.manage_message_list import manage_message_list
 from collections import namedtuple
 from unittest.mock import patch
 from dbutil.constants import constants
-import traceback
+# import traceback
 
 
 class test_manage_message_list():

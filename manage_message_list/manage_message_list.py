@@ -114,7 +114,8 @@ class manage_message_list():
             try:
                 results = dbUtil.getAllMsgs(self.con, table_name)
                 if results:
-                    (no_list, msg_list) = dbUtil.getAllMsgs(self.con, table_name)
+                    (no_list, msg_list) = dbUtil.getAllMsgs(self.con,
+                                                            table_name)
 
                     # logger for message list
                     self.list_logger = self.make_filehandler_logger(table_name, 'message_list')

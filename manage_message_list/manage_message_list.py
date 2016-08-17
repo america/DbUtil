@@ -118,7 +118,10 @@ class manage_message_list():
                                                             table_name)
 
                     # logger for message list
-                    self.list_logger = self.make_filehandler_logger(table_name, 'message_list')
+                    self.list_logger = \
+                        self.make_filehandler_logger(table_name,
+                                                     'message_list')
+
 
                     index = 0
                     while index < len(no_list):

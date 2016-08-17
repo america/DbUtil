@@ -308,7 +308,7 @@ class test_manage_message_list():
             constants.CREATE_TABLE_DDL = 'sql/create_table.ddl'
 
     def test_18_delete_table(self):
-        self.con.begin()
+        # self.con.begin()
         expected = True
 
         target = manage_message_list()

@@ -9,3 +9,4 @@ backup
 /dist
 /.tox
 /dbutil.egg-info
+nosetests.xml

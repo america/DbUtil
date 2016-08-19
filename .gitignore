@@ -8,5 +8,5 @@ backup
 /build
 /dist
 /.tox
-/dbutil.egg-info
+/db_util.egg-info
 nosetests.xml

@@ -1,12 +1,6 @@
 #!/usr/bin/env/python
 # -*- coding: utf-8 -*-
 
-# try to tweet max frequency
-TWEET_MAX_LOOP_CNT = 20
-
-# the flag of tweet or stdout
-TWEET_FLAG = True
-
 # file name
 DB_INFO_INI = "db_info.ini"
 SELECT_USER_INFO_SQL = "sql/selectUserInfo.sql"
